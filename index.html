@@ -9575,6 +9575,13 @@ body.perfil-colaborador .cert-descarga { display: block; }
     function cargarImg(src) { return new Promise(function (ok) { if (!src) return ok(null); var i = new Image(); i.onload = function () { ok(i); }; i.onerror = function () { ok(null); }; i.src = src; }); }
     function codigo(t) { var h = 2166136261; for (var i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619); } return 'IAMII-' + (h >>> 0).toString(36).toUpperCase().padStart(7, '0'); }
     function ajustar(ctx, texto, max, base, peso) { var t = base; do { ctx.font = peso + ' ' + t + 'px Poppins, Arial, sans-serif'; t -= 2; } while (ctx.measureText(texto).width > max && t > 20); }
+    function textoExpedicion(dt) {
+        var U = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve', 'veinte',
+                 'veintiuno', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve', 'treinta', 'treinta y uno'];
+        var M = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        var d = dt.getDate(), dia = d === 1 ? 'al primer (1) día' : 'a los ' + U[d] + ' (' + d + ')';
+        return 'Se expide en Popayán, Cauca ' + dia + ' del mes de ' + M[dt.getMonth()] + ' del ' + dt.getFullYear();
+    }
     function dibujar() {
         var d = datos(), e = estado(), W = 2000, H = 1414;
         var c = document.createElement('canvas'); c.width = W; c.height = H; var x = c.getContext('2d');
@@ -9602,7 +9609,7 @@ body.perfil-colaborador .cert-descarga { display: block; }
             x.fillText('estrategia IAMII y obtener la aprobación del líder institucional IAMII.', W / 2, 958);
             var emi = new Date((e.sol && e.sol.fechaRespuesta) || Date.now()); if (isNaN(emi)) emi = new Date();
             var ven = new Date(emi.getTime()); ven.setFullYear(ven.getFullYear() + 1);
-            x.font = '500 30px Poppins, Arial, sans-serif'; x.fillStyle = '#56507a'; x.fillText('Expedido en Popayán el ' + fecha(emi.toISOString()), W / 2, 1030);
+            x.font = '500 30px Poppins, Arial, sans-serif'; x.fillStyle = '#56507a'; x.fillText(textoExpedicion(emi), W / 2, 1030);
             x.font = '700 30px Poppins, Arial, sans-serif'; x.fillStyle = '#1f7a63'; x.fillText('Vigencia: un (1) año, hasta el ' + fecha(ven.toISOString()), W / 2, 1076);
             if (firma) { var fh = 105, fw = firma.width * fh / firma.height; if (fw > 520) { fw = 520; fh = firma.height * fw / firma.width; } x.drawImage(firma, (W - fw) / 2, 1208 - fh, fw, fh); }
             x.strokeStyle = '#18205f'; x.lineWidth = 2; x.beginPath(); x.moveTo(W / 2 - 280, 1215); x.lineTo(W / 2 + 280, 1215); x.stroke();
