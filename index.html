@@ -9842,16 +9842,26 @@ body.visor-cartilla-abierto{overflow:hidden}
 /* Cartillas: se cargan como scripts (funciona abriendo el archivo local o publicado en un servidor) */
 (function(){
   function cargar(c){
+    return new Promise(function(ok){
     var el=document.createElement('script'); el.src=c.archivoPaginas; el.async=true;
-    el.onload=function(){
+    el.onerror=function(){ ok(); };
+    el.onload=function(){ ok();
       var arr=(window.IAMII_CARTILLA_PAGINAS||{})[c.id]; if(!arr) return;
       for(var i=0;i<arr.length;i++) c.paginas[i]=arr[i];
       var v=document.getElementById('visorCartilla');
       if(v&&v.classList.contains('abierto')){ var r=document.getElementById('visorRango'); if(r) r.dispatchEvent(new Event('input')); }
     };
     document.head.appendChild(el);
+    });
   }
-  (window.CARTILLAS_IAMII||[]).forEach(function(c){ if(c.archivoPaginas) cargar(c); });
+  /* Se descargan solo cuando la persona entra a «Cartillas Educativas» o abre una cartilla */
+  var pedidas=null;
+  window.cargarCartillasIamii=function(){ if(!pedidas) pedidas=Promise.all((window.CARTILLAS_IAMII||[]).filter(function(c){return c.archivoPaginas;}).map(cargar)); return pedidas; };
+  document.addEventListener('DOMContentLoaded',function(){
+    var sv=window.switchView; if(sv) window.switchView=function(v){ if(v==='reportes') window.cargarCartillasIamii(); return sv.apply(this,arguments); };
+    var ab=window.abrirCartillaIamii; if(ab) window.abrirCartillaIamii=function(){ window.cargarCartillasIamii(); return ab.apply(this,arguments); };
+    var db=window.descargarCartillaIamii; if(db) window.descargarCartillaIamii=function(){ var a=arguments,t=this; window.cargarCartillasIamii().then(function(){ db.apply(t,a); }); };
+  });
 })();
 </script><script id="cartillas-iamii-js">
 (function () {
