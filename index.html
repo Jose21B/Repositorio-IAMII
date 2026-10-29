@@ -7113,7 +7113,10 @@ window.temaJuegoIamii = (function () {
         const cerrarSiFalla = function () { try { ocultarVideoIntro(); } catch (e) {} };
         video.addEventListener('error', cerrarSiFalla, { once: true });
         setTimeout(function () {
-            if (video.paused && !video.currentTime) cerrarSiFalla();
+            if (!(video.paused && !video.currentTime)) return;
+            var se = window.__iamiiSesion;
+            if (se && !se.introVista) { window.iamiiBotonPlayIntro && window.iamiiBotonPlayIntro(); return; }
+            cerrarSiFalla();
         }, 3000);
     }
 
@@ -10110,7 +10113,7 @@ body.visor-cartilla-abierto{overflow:hidden}
     function prepararIntro(d, perfil) {
         var ced = perfil === 'lider' ? String(d.cedula == null ? 0 : d.cedula) : String(d.cedula);
         var local = false; try { local = !!(JSON.parse(localStorage.getItem('iamii_intro_vista_v1') || '{}') || {})[ced]; } catch (e) {}
-        var vista = !!d.intro_vista || local || perfil === 'lider';
+        var vista = perfil === 'lider' || !!d.intro_vista;
         window.__iamiiSesion = { cedula: ced, token: d.token || '', introVista: vista };
         var sk = $('introVideoSkip'), ob = $('introVideoObligatorio');
         if (sk) sk.style.display = vista ? '' : 'none';
@@ -10736,6 +10739,36 @@ body.perfil-colaborador .solo-lider-btn{display:none!important}
   var r = window.revelarPuntoEscena;
   window.revelarPuntoEscena = function(){ var x = r.apply(this, arguments); setTimeout(ajustar, 20); setTimeout(ajustar, 200); return x; };
   addEventListener('resize', ajustar);
+})();
+</script><style id="intro-oblig-css">
+.intro-play-oblig{position:absolute;inset:0;margin:auto;width:min(280px,80vw);height:64px;border:0;border-radius:999px;z-index:6;background:linear-gradient(135deg,#745fd0,#8f7be0);color:#fff;font:800 1.05rem Poppins,system-ui,sans-serif;box-shadow:0 12px 30px rgba(0,0,0,.35);cursor:pointer}
+</style>
+<script id="intro-oblig-js">
+(function(){
+  var v=document.getElementById('introVideo');
+  function oblig(){ var se=window.__iamiiSesion; return !!(se && !se.introVista); }
+  window.iamiiBotonPlayIntro=function(){
+    var sc=document.getElementById('introVideoScreen'); if(!sc||document.getElementById('introPlayOblig')) return;
+    var b=document.createElement('button'); b.id='introPlayOblig'; b.type='button'; b.className='intro-play-oblig'; b.textContent='▶ Reproducir video de bienvenida';
+    b.onclick=function(){ try{ v.muted=false; var p=v.play(); if(p&&p.catch) p.catch(function(){ v.muted=true; v.play(); }); }catch(e){} b.remove(); };
+    sc.appendChild(b);
+  };
+  if(!v) return;
+  // En la primera sesión del colaborador no se puede adelantar ni cerrar la intro
+  var maximo=0, corr=false;
+  v.addEventListener('play',function(){ if(v.currentTime<1) maximo=0; });
+  v.addEventListener('timeupdate',function(){ if(!corr && !v.seeking && v.currentTime>maximo && v.currentTime-maximo<2.5) maximo=v.currentTime; });
+  v.addEventListener('seeking',function(){ if(oblig() && v.currentTime>maximo+1.5){ corr=true; v.currentTime=maximo; setTimeout(function(){corr=false;},300); } });
+  v.addEventListener('pause',function(){ var sc=document.getElementById('introVideoScreen'); if(oblig() && sc && sc.dataset.oculto!=='1' && !v.ended) window.iamiiBotonPlayIntro(); });
+  var ov=window.ocultarVideoIntro;
+  window.ocultarVideoIntro=function(){
+    if(oblig() && !(v.ended || (v.duration && v.currentTime>=v.duration-1.5))){
+      if(v.error) return ov.apply(this,arguments);   // el video no se puede cargar: no se deja al usuario bloqueado
+      return;
+    }
+    return ov.apply(this,arguments);
+  };
+  v.addEventListener('ended',function(){ var b=document.getElementById('introPlayOblig'); if(b) b.remove(); });
 })();
 </script></body>
 </html>
