@@ -9579,7 +9579,8 @@ body.perfil-colaborador .cert-descarga { display: block; }
         var d = datos(), e = estado(), W = 2000, H = 1414;
         var c = document.createElement('canvas'); c.width = W; c.height = H; var x = c.getContext('2d');
         var logoEl = document.querySelector('.sidebar img');
-        return cargarImg(logoEl ? logoEl.src : null).then(function (logo) {
+        return Promise.all([cargarImg(logoEl ? logoEl.src : null), cargarImg(window.IAMII_FIRMA_LIDER || null)]).then(function (im) {
+            var logo = im[0], firma = im[1];
             x.fillStyle = '#ffffff'; x.fillRect(0, 0, W, H);
             var g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#f6f2ff'); g.addColorStop(1, '#eefaf6'); x.fillStyle = g; x.fillRect(40, 40, W - 80, H - 80);
             x.lineWidth = 10; x.strokeStyle = '#745fd0'; x.strokeRect(60, 60, W - 120, H - 120);
@@ -9592,16 +9593,18 @@ body.perfil-colaborador .cert-descarga { display: block; }
             x.font = '500 34px Poppins, Arial, sans-serif'; x.fillStyle = '#56507a'; x.fillText('Se otorga a', W / 2, 640);
             ajustar(x, d.nombre || 'Colaborador IAMII', 1500, 78, '800'); x.fillStyle = '#745fd0'; x.fillText(d.nombre || 'Colaborador IAMII', W / 2, 740);
             x.fillStyle = '#e85c7b'; x.fillRect(W / 2 - 360, 770, 720, 5);
-            var rol = [d.cargo, d.servicio && d.servicio !== '—' ? d.servicio : ''].filter(Boolean).join(' · ');
-            x.font = '600 32px Poppins, Arial, sans-serif'; x.fillStyle = '#18205f'; if (rol) x.fillText(rol, W / 2, 830);
+            var ced = String(usuario() || '').replace(/\D/g, ''); ced = ced ? 'C.C. ' + ced.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+            var rol = [ced, d.cargo, d.servicio && d.servicio !== '—' ? d.servicio : ''].filter(Boolean).join(' · ');
+            ajustar(x, rol, 1600, 32, '600');
+            x.fillStyle = '#18205f'; if (rol) x.fillText(rol, W / 2, 830);
             x.font = '500 34px Poppins, Arial, sans-serif'; x.fillStyle = '#3d3a5c';
             x.fillText('por completar satisfactoriamente la ruta de formación de los 10 pasos de la', W / 2, 910);
             x.fillText('estrategia IAMII y obtener la aprobación del líder institucional IAMII.', W / 2, 958);
-            var pts = null; try { pts = window.iamiiPuntajes ? window.iamiiPuntajes() : null; } catch (er) {}
-            x.font = '700 32px Poppins, Arial, sans-serif'; x.fillStyle = '#1f7a63';
-            if (pts) x.fillText('Puntaje obtenido: ' + pts.total + ' / ' + pts.maximo, W / 2, 1030);
-            var f = fecha(e.sol && e.sol.fechaRespuesta);
-            x.font = '500 30px Poppins, Arial, sans-serif'; x.fillStyle = '#56507a'; x.fillText('Popayán, ' + f, W / 2, 1090);
+            var emi = new Date((e.sol && e.sol.fechaRespuesta) || Date.now()); if (isNaN(emi)) emi = new Date();
+            var ven = new Date(emi.getTime()); ven.setFullYear(ven.getFullYear() + 1);
+            x.font = '500 30px Poppins, Arial, sans-serif'; x.fillStyle = '#56507a'; x.fillText('Expedido en Popayán el ' + fecha(emi.toISOString()), W / 2, 1030);
+            x.font = '700 30px Poppins, Arial, sans-serif'; x.fillStyle = '#1f7a63'; x.fillText('Vigencia: un (1) año, hasta el ' + fecha(ven.toISOString()), W / 2, 1076);
+            if (firma) { var fh = 105, fw = firma.width * fh / firma.height; if (fw > 520) { fw = 520; fh = firma.height * fw / firma.width; } x.drawImage(firma, (W - fw) / 2, 1208 - fh, fw, fh); }
             x.strokeStyle = '#18205f'; x.lineWidth = 2; x.beginPath(); x.moveTo(W / 2 - 280, 1215); x.lineTo(W / 2 + 280, 1215); x.stroke();
             x.font = '700 28px Poppins, Arial, sans-serif'; x.fillStyle = '#18205f'; x.fillText('Líder de la Política IAMII', W / 2, 1255);
             var cod = codigo([usuario(), d.nombre, e.sol && e.sol.id, e.sol && e.sol.fechaRespuesta].join('|'));
