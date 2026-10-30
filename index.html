@@ -3705,9 +3705,9 @@
                 </div>
                 <!-- Paso 3: registro del colaborador -->
                 <div id="lcPaso3" style="display:none">
-                    <div class="login-section-title">Registro de colaborador</div>
-                    <p class="lc-nota"><i class="fas fa-database"></i> Sus datos se tomaron de la base de datos de Talento Humano. Solo seleccione su servicio y cree su contraseña.</p>
-                    <div class="lc-solo-lectura">
+                    <div class="login-section-title" id="lcTitulo3">Registro de colaborador</div>
+                    <p class="lc-nota" id="lcNota3"><i class="fas fa-database"></i> Sus datos se tomaron de la base de datos de Talento Humano. Solo seleccione su servicio y cree su contraseña.</p>
+                    <div class="lc-solo-lectura" id="lcDatos3">
                         <div class="form-group">
                         <label for="lcRegCedula">Cédula</label>
                         <div class="login-field">
@@ -3716,24 +3716,24 @@
                         </div>
                     </div>
                         <div class="form-group">
-                        <label for="lcRegNombre">Nombre completo</label>
+                        <label for="lcRegNombre">Nombre y apellidos completos <span class="lc-req lc-req-auto">*</span></label>
                         <div class="login-field">
                             <i class="fas fa-user"></i>
-                            <input id="lcRegNombre" type="text" readonly tabindex="-1">
+                            <input id="lcRegNombre" type="text" readonly tabindex="-1" maxlength="150" autocomplete="name" autocapitalize="characters">
                         </div>
                     </div>
                         <div class="form-group">
-                        <label for="lcRegCargo">Cargo</label>
+                        <label for="lcRegCargo">Cargo <span class="lc-req lc-req-auto">*</span></label>
                         <div class="login-field">
                             <i class="fas fa-briefcase-medical"></i>
-                            <input id="lcRegCargo" type="text" readonly tabindex="-1">
+                            <input id="lcRegCargo" type="text" readonly tabindex="-1" maxlength="150" autocomplete="organization-title">
                         </div>
                     </div>
                         <div class="form-group">
-                        <label for="lcRegCorreo">Correo electrónico</label>
+                        <label for="lcRegCorreo">Correo electrónico <span class="lc-req lc-req-auto">*</span></label>
                         <div class="login-field">
                             <i class="fas fa-envelope"></i>
-                            <input id="lcRegCorreo" type="text" readonly tabindex="-1">
+                            <input id="lcRegCorreo" type="text" readonly tabindex="-1" maxlength="150" autocomplete="email" autocapitalize="none" spellcheck="false">
                         </div>
                     </div>
                     </div>
@@ -10191,7 +10191,11 @@ body.visor-cartilla-abierto{overflow:hidden}
 #loginCedula .lc-nota i{color:#7b5bd6;margin-right:4px}
 #loginCedula .lc-identidad{font-size:14px;color:#2b2140;background:#f6f4fb;border-radius:12px;padding:10px 12px;margin:0 0 12px;line-height:1.4}
 #loginCedula .lc-identidad:empty{display:none}
-#loginCedula .lc-solo-lectura input{background:#f6f4fb!important;color:#3a3350;cursor:default}
+#loginCedula .lc-solo-lectura:not(.editable) input{background:#f6f4fb!important;color:#3a3350;cursor:default}
+#loginCedula #lcRegCedula{background:#f6f4fb!important;color:#3a3350;cursor:default}
+#loginCedula #lcDatos3:not(.editable) .lc-req-auto{display:none}
+#loginScreen.login-screen{align-items:flex-start!important}
+#loginScreen.login-screen>.login-card{margin:auto!important;flex-shrink:0}
 #loginCedula .lc-clave{position:relative}
 #loginCedula .lc-clave input{padding-right:84px!important}
 #loginCedula .login-error:empty{display:none!important}
@@ -10247,14 +10251,17 @@ body.visor-cartilla-abierto{overflow:hidden}
             $('lcAvatarSlot' + n).appendChild(av);
             try { window.prepararSelectorAvatarLogin(); } catch (e) {}
         }
-        var f = n === 1 ? $('lcCedula') : n === 2 ? $('lcClave') : n === 3 ? $('lcServicio') : n === 4 ? $('lcNueva') : (estado.modo === 'lider' ? $('lcCodigo') : $('lcEnviarSol'));
-        setTimeout(function () { try { f.focus({ preventScroll: true }); } catch (e) {} }, 60);
+        var ls = $('loginScreen'); if (ls) ls.scrollTop = 0;
+        var f = n === 1 ? $('lcCedula') : n === 2 ? $('lcClave') : n === 3 ? (estado.modo === 'autorregistro' ? $('lcRegNombre') : $('lcServicio')) : n === 4 ? $('lcNueva') : (estado.modo === 'lider' ? $('lcCodigo') : $('lcEnviarSol'));
+        setTimeout(function () { try { f.focus({ preventScroll: true }); } catch (e) {} if (ls) ls.scrollTop = 0; }, 60);
     }
     function reiniciar() {
         estado = { cedula: '', modo: '' };
         ['lcCedula', 'lcClave', 'lcRegClave', 'lcRegClave2', 'lcServicioOtro', 'lcNueva', 'lcNueva2', 'lcCodigo', 'lcRecNueva', 'lcRecNueva2'].forEach(function (id) { $(id).value = ''; });
         pendiente = null;
         $('lcServicio').value = ''; $('lcGrupoOtro').style.display = 'none';
+        ['lcRegCedula', 'lcRegNombre', 'lcRegCargo', 'lcRegCorreo'].forEach(function (id) { $(id).value = ''; });
+        modoRegistro(false);
         try { perfilActivo = null; modoAsistencial = null; datosAsistencial = null; } catch (e) {}
         mostrarPaso(1);
     }
@@ -10323,7 +10330,14 @@ body.visor-cartilla-abierto{overflow:hidden}
         ocupado(btn, true, 'Validando…');
         llamar('consultar_cedula_iamii', { p_cedula: ced }).then(function (r) {
             ocupado(btn, false);
-            if (!r || !r.existe) { error(1, 'La cédula ' + ced + ' no se encuentra en la base de datos de Talento Humano. Verifique el número o comuníquese con el líder IAMII.'); return; }
+            if (!r || !r.existe) {
+                // No está en Talento Humano: autorregistro con sus datos
+                estado.cedula = ced; estado.modo = 'autorregistro';
+                modoRegistro(true);
+                $('lcRegCedula').value = ced;
+                ['lcRegNombre', 'lcRegCargo', 'lcRegCorreo'].forEach(function (id) { $(id).value = ''; });
+                mostrarPaso(3); return;
+            }
             estado.cedula = ced;
             if (r.perfil === 'lider') {
                 estado.modo = 'lider';
@@ -10341,6 +10355,7 @@ body.visor-cartilla-abierto{overflow:hidden}
                 mostrarPaso(2);
             } else {
                 estado.modo = 'registro';
+                modoRegistro(false);
                 $('lcRegCedula').value = ced;
                 $('lcRegNombre').value = r.nombre || '';
                 $('lcRegCargo').value = r.cargo || '';
@@ -10373,15 +10388,62 @@ body.visor-cartilla-abierto{overflow:hidden}
         }, function () { ocupado(btn, false); error(2, SIN_RED); });
     }
 
+    /* ---------- Autorregistro: cédula que no está en Talento Humano ---------- */
+    function modoRegistro(auto) {
+        var d = $('lcDatos3'); if (!d) return;
+        d.classList.toggle('editable', !!auto);
+        ['lcRegNombre', 'lcRegCargo', 'lcRegCorreo'].forEach(function (id) {
+            var el = $(id); el.readOnly = !auto;
+            if (auto) el.removeAttribute('tabindex'); else el.setAttribute('tabindex', '-1');
+        });
+        $('lcRegNombre').placeholder = auto ? 'Ej: MARÍA LÓPEZ RUIZ' : '';
+        $('lcRegCargo').placeholder = auto ? 'Ej: Auxiliar de enfermería' : '';
+        $('lcRegCorreo').placeholder = auto ? 'Ej: nombre@correo.com' : '';
+        $('lcRegCorreo').type = auto ? 'email' : 'text';
+        $('lcRegCorreo').setAttribute('inputmode', auto ? 'email' : 'text');
+        $('lcTitulo3').textContent = auto ? 'Registro de nuevo colaborador' : 'Registro de colaborador';
+        $('lcNota3').innerHTML = auto
+            ? '<i class="fas fa-user-plus"></i> Su cédula no aparece en la base de datos de Talento Humano. Complete sus datos para crear su perfil.'
+            : '<i class="fas fa-database"></i> Sus datos se tomaron de la base de datos de Talento Humano. Solo seleccione su servicio y cree su contraseña.';
+    }
+    function datosAutoValidos() {
+        var nombre = $('lcRegNombre').value.replace(/\s+/g, ' ').trim(), cargo = $('lcRegCargo').value.replace(/\s+/g, ' ').trim(), correo = $('lcRegCorreo').value.trim();
+        if (nombre.split(' ').length < 2 || nombre.length < 5 || !/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+$/.test(nombre)) { error(3, 'Escriba su nombre y apellidos completos (solo letras).'); $('lcRegNombre').focus(); return false; }
+        if (cargo.length < 3) { error(3, 'Escriba su cargo.'); $('lcRegCargo').focus(); return false; }
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo)) { error(3, 'Escriba un correo electrónico válido.'); $('lcRegCorreo').focus(); return false; }
+        return true;
+    }
+    function autorregistrar(servicio, clave) {
+        var btn = $('lcRegistrar');
+        var nombre = $('lcRegNombre').value.replace(/\s+/g, ' ').trim();
+        var cargo = $('lcRegCargo').value.replace(/\s+/g, ' ').trim();
+        var correo = $('lcRegCorreo').value.trim();
+        if (nombre.split(' ').length < 2 || nombre.length < 5 || !/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+$/.test(nombre)) { error(3, 'Escriba su nombre y apellidos completos (solo letras).'); $('lcRegNombre').focus(); return; }
+        if (cargo.length < 3) { error(3, 'Escriba su cargo.'); $('lcRegCargo').focus(); return; }
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo)) { error(3, 'Escriba un correo electrónico válido.'); $('lcRegCorreo').focus(); return; }
+        ocupado(btn, true, 'Creando perfil…');
+        llamar('autorregistrar_colaborador_iamii', { p_cedula: estado.cedula, p_nombre: nombre, p_cargo: cargo, p_correo: correo, p_servicio: servicio, p_clave: clave, p_avatar: avatarElegido() }).then(function (r) {
+            ocupado(btn, false);
+            if (!r || !r.ok) {
+                var m = { ya_existe: 'Esta cédula ya está registrada. Vuelva al inicio e ingrese con su cédula.', nombre: 'Escriba su nombre y apellidos completos (solo letras).', cargo: 'Escriba su cargo.', correo: 'Escriba un correo electrónico válido.', servicio: 'Seleccione un servicio válido.', clave: 'La contraseña debe tener mínimo 8 caracteres, al menos 1 letra mayúscula y 1 carácter especial (ej: # $ * - . !).', cedula: 'La cédula no es válida.' };
+                error(3, m[r && r.error] || 'No fue posible completar el registro.');
+                return;
+            }
+            entrarConProgreso(r);
+        }, function () { ocupado(btn, false); error(3, SIN_RED); });
+    }
+
     function registrar() {
         var sel = $('lcServicio'), servicio = sel.value, btn = $('lcRegistrar');
         var c1 = $('lcRegClave').value, c2 = $('lcRegClave2').value;
         error(3, '');
         if (servicio === 'Otro') servicio = $('lcServicioOtro').value.replace(/ +/g, ' ').trim();
+        if (estado.modo === 'autorregistro' && !datosAutoValidos()) return;
         if (!sel.value) { error(3, 'Por favor seleccione el servicio al que pertenece.'); return; }
         if (servicio.length < 3) { error(3, 'Seleccionó «Otro»: escriba en letras el nombre del servicio al que pertenece.'); $('lcServicioOtro').focus(); return; }
         if (!claveSegura(c1)) { error(3, 'La contraseña debe tener mínimo 8 caracteres, al menos 1 letra mayúscula y 1 carácter especial (ej: # $ * - . !).'); return; }
         if (c1 !== c2) { error(3, 'Las contraseñas no coinciden.'); return; }
+        if (estado.modo === 'autorregistro') { autorregistrar(servicio, c1); return; }
         ocupado(btn, true, 'Creando perfil…');
         llamar('registrar_colaborador_iamii', { p_cedula: estado.cedula, p_servicio: servicio, p_clave: c1, p_avatar: avatarElegido() }).then(function (r) {
             ocupado(btn, false);
