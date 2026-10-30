@@ -4751,7 +4751,7 @@
             <div id="usuarios" class="section-container">
                 <div class="content-card usr-card">
                     <h2 class="card-title">👥 Usuarios del aplicativo</h2>
-                    <p class="card-subtitle">Base de colaboradores (Talento Humano y autorregistros). Edite datos mal digitados o elimine usuarios duplicados.</p>
+                    <p class="card-subtitle">Base de colaboradores (Talento Humano y autorregistros) con sus sesiones y tiempos. Haga clic en una fila para ver el detalle, editar o eliminar.</p>
                     <div class="usr-barra">
                         <div class="usr-buscar"><i class="fas fa-magnifying-glass"></i><input type="search" id="usrBuscar" placeholder="Buscar por cédula, nombre, cargo, servicio o correo" autocomplete="off"></div>
                         <select id="usrFiltro" aria-label="Filtrar usuarios">
@@ -4759,14 +4759,17 @@
                             <option value="registrados">Registrados en el aplicativo</option>
                             <option value="no">No registrados aún</option>
                             <option value="auto">Autorregistro</option>
+                            <option value="sesiones">Con sesiones</option>
                         </select>
                         <button type="button" class="btn btn-ghost" id="usrRecargar"><i class="fas fa-rotate"></i> Actualizar</button>
+                        <button type="button" class="btn btn-primary" id="usrExportar"><i class="fas fa-file-excel"></i> Exportar a Excel</button>
                     </div>
                     <p class="usr-resumen" id="usrResumen">Cargando usuarios…</p>
                     <div class="usr-tabla-wrap"><table class="usr-tabla" id="usrTabla">
                         <thead><tr>
                             <th>Cédula</th><th>Nombre completo</th><th>Teléfono</th><th>Perfil</th><th>Cargo</th><th>Proceso</th><th>Área</th>
-                            <th>Correo institucional</th><th>Correo secundario</th><th>Origen</th><th>Entidad</th><th>Perfil IAMII</th><th>Servicio</th><th>Avatar</th><th class="usr-acc">Acciones</th>
+                            <th>Correo institucional</th><th>Correo secundario</th><th>Origen</th><th>Entidad</th><th>Perfil IAMII</th><th>Servicio</th><th>Avatar</th>
+                            <th>Último inicio de sesión</th><th>Duración de la sesión</th><th>Sesiones</th><th>Tiempo total en pasos</th><th>Pasos aprobados</th>
                         </tr></thead>
                         <tbody id="usrCuerpo"></tbody>
                     </table></div>
@@ -4778,10 +4781,7 @@
                     <h3 id="usrModalTitulo"></h3>
                     <div id="usrModalCuerpo"></div>
                     <p class="usr-error" id="usrModalError"></p>
-                    <div class="usr-modal-botones">
-                        <button type="button" class="btn btn-ghost" id="usrCancelar">Cancelar</button>
-                        <button type="button" class="btn btn-primary" id="usrConfirmar"></button>
-                    </div>
+                    <div class="usr-modal-botones" id="usrModalBotones"></div>
                 </div>
             </div>
 
@@ -10702,11 +10702,11 @@ body.perfil-lider .nav-item.nav-solo-lider{display:flex!important}
 #usuarios .usr-tabla th:first-child{z-index:3;background:#f4f0fd}
 #usuarios .usr-tabla .usr-acc{position:sticky;right:0;background:#fff;z-index:1;box-shadow:-6px 0 8px -6px rgba(43,33,64,.18)}
 #usuarios .usr-tabla th.usr-acc{background:#f4f0fd;z-index:3}
-#usuarios .usr-vacio{color:#a39cb8;font-style:italic}
-#usuarios .usr-chip{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
-#usuarios .usr-chip.lider{background:#efe9ff;color:#5a43c7}
-#usuarios .usr-chip.colab{background:#e6f6f1;color:#1f7a63}
-#usuarios .usr-chip.no{background:#f4f2f7;color:#7b7590}
+.usr-vacio{color:#a39cb8;font-style:italic}
+.usr-chip{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
+.usr-chip.lider{background:#efe9ff;color:#5a43c7}
+.usr-chip.colab{background:#e6f6f1;color:#1f7a63}
+.usr-chip.no{background:#f4f2f7;color:#7b7590}
 #usuarios .usr-btn{border:0;border-radius:9px;padding:6px 10px;margin-left:4px;font:600 12px Poppins,system-ui,sans-serif;cursor:pointer}
 #usuarios .usr-btn.editar{background:#efe9ff;color:#5a43c7}
 #usuarios .usr-btn.borrar{background:#fdecef;color:#c0394f}
@@ -10716,7 +10716,32 @@ body.perfil-lider .nav-item.nav-solo-lider{display:flex!important}
 #usuarios .usr-paginas button[disabled]{opacity:.45;cursor:default}
 .usr-modal{position:fixed;inset:0;z-index:4000;background:rgba(27,20,48,.45);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 16px}
 .usr-modal[hidden]{display:none}
-.usr-modal-caja{background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(27,20,48,.3);width:100%;max-width:640px;margin:auto;padding:22px}
+.usr-modal-caja{background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(27,20,48,.3);width:100%;max-width:760px;margin:auto;padding:22px}
+#liderTiempos{display:none!important}
+#usuarios .usr-tabla tbody tr[data-ced]{cursor:pointer}
+#usuarios .usr-tabla tbody tr[data-ced]:hover td,#usuarios .usr-tabla tbody tr[data-ced]:focus td{background:#f6f2ff}
+#usuarios .usr-tabla tbody tr[data-ced]:focus{outline:2px solid #8f7be0;outline-offset:-2px}
+#usuarios .usr-tabla td.num{text-align:center}
+.usr-online{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2fbf71;margin-right:6px;box-shadow:0 0 0 3px rgba(47,191,113,.18);vertical-align:middle}
+.usr-modal-caja h4{margin:18px 0 8px;color:#2b2140;font-size:15px}
+.usr-cabecera{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 14px;border-radius:14px;background:#f6f4fb}
+.usr-cabecera b{font-size:15.5px;color:#2b2140}.usr-cabecera>span:not(.usr-chip){color:#6b6480;font-size:13.5px}
+.usr-datos{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px 16px;margin:0}
+.usr-datos dt{font-size:11.5px;font-weight:700;color:#8a7fb3;text-transform:uppercase;letter-spacing:.03em}
+.usr-datos dd{margin:2px 0 0;font-size:14px;color:#2b2140;word-break:break-word}
+.usr-nota{font-size:12.5px;color:#6b6480;margin:0 0 10px}
+.usr-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.usr-kpis>div{border:1px solid #ece7fa;border-radius:12px;padding:10px;background:#fbfaff}
+.usr-kpis span{display:block;font-size:11.5px;color:#6b6480}.usr-kpis b{font-size:14px;color:#2b2140}
+.usr-pasos{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:12px}
+.usr-paso{border:1px solid #ece7fa;border-radius:12px;padding:9px 10px;font-size:12px;color:#6b6480;line-height:1.45;background:#fff}
+.usr-paso b{display:block;color:#2b2140;font-size:13px}.usr-paso .t{display:block;font-weight:700;color:#5a43c7;font-size:13.5px;margin:2px 0}
+.usr-paso.ok{border-color:#bfe7d8;background:#f1fbf7}.usr-paso.ok .t{color:#1f7a63}
+.usr-cargando{font-size:13px;color:#6b6480;margin-top:12px}
+.usr-tabla-mini{overflow:auto;border:1px solid #ece7fa;border-radius:12px}
+.usr-tabla-mini table{border-collapse:collapse;width:100%;font-size:12.5px}
+.usr-tabla-mini th{background:#f4f0fd;text-align:left;padding:7px 10px;color:#2b2140;white-space:nowrap}
+.usr-tabla-mini td{padding:7px 10px;border-top:1px solid #f1eef8;white-space:nowrap;color:#3a3350}
 .usr-modal-caja h3{margin:0 0 12px;color:#2b2140;font-size:18px}
 .usr-form{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
 .usr-form label{display:block;font-size:12.5px;font-weight:600;color:#3a3350;margin-bottom:4px}
@@ -10732,43 +10757,73 @@ body.perfil-lider .nav-item.nav-solo-lider{display:flex!important}
 (function () {
     function $(id) { return document.getElementById(id); }
     var NOREG = 'No registrado aún';
-    var lista = [], vista = [], pagina = 0, POR = 50, cargando = false, accion = null;
-    var CAMPOS = [['cedula', 'Cédula'], ['nombre_completo', 'Nombre completo'], ['telefono', 'Teléfono'], ['perfil', 'Perfil'], ['cargo', 'Cargo'],
-        ['proceso', 'Proceso'], ['area', 'Área'], ['email_institucional', 'Correo institucional'], ['email_secundario', 'Correo secundario'],
-        ['origen', 'Origen'], ['entidad', 'Entidad'], ['perfil_iamii', 'Perfil IAMII'], ['servicio', 'Servicio'], ['avatar_genero', 'Avatar']];
+    var lista = [], vista = [], pagina = 0, POR = 50, cargando = false, actual = null;
+    var COLS = [
+        { k: 'cedula', t: 'Cédula' }, { k: 'nombre_completo', t: 'Nombre completo' }, { k: 'telefono', t: 'Teléfono' }, { k: 'perfil', t: 'Perfil' },
+        { k: 'cargo', t: 'Cargo', filtro: true }, { k: 'proceso', t: 'Proceso', filtro: true }, { k: 'area', t: 'Área' },
+        { k: 'email_institucional', t: 'Correo institucional' }, { k: 'email_secundario', t: 'Correo secundario' }, { k: 'origen', t: 'Origen' },
+        { k: 'entidad', t: 'Entidad', filtro: true }, { k: 'perfil_iamii', t: 'Perfil IAMII', filtro: true }, { k: 'servicio', t: 'Servicio' },
+        { k: 'avatar_genero', t: 'Avatar' }, { k: 'ult_inicio', t: 'Último inicio de sesión' }, { k: 'ult_duracion', t: 'Duración de la sesión' },
+        { k: 'sesiones', t: 'Sesiones' }, { k: 'tiempo_total', t: 'Tiempo total en pasos' }, { k: 'pasos', t: 'Pasos aprobados' }
+    ];
     function sesion() { var s = window.__iamiiSesion; return s && window.__iamiiLider && s.token ? s : null; }
     function esLider() { try { return perfilActivo === 'iamii' && !!sesion(); } catch (e) { return false; } }
     function esc(t) { var d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; }
+    function dur(seg) {
+        seg = Math.max(0, Math.round(seg || 0)); var h = Math.floor(seg / 3600), m = Math.floor(seg % 3600 / 60), s = seg % 60;
+        return h ? h + ' h ' + m + ' min' : m ? m + ' min ' + s + ' s' : s + ' s';
+    }
+    function fecha(iso) {
+        if (!iso) return '';
+        var d = new Date(iso); if (isNaN(d)) return '';
+        return d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }) + ' · ' + d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+    }
+    function durSesion(x) { if (!x || !x.inicio) return null; var a = new Date(x.inicio), b = new Date(x.fin || x.ultima || x.inicio); return isNaN(a) || isNaN(b) ? null : Math.max(0, (b - a) / 1000); }
+    function enCurso(x) { return !!(x && !x.fin && x.ultima && Date.now() - new Date(x.ultima).getTime() < 120000); }
     function txtPerfil(u) { if (!u.perfil_iamii || !u.registrado) return NOREG; return u.perfil_iamii === 'lider' ? 'Líder IAMII' : 'Colaborador'; }
     function txtAvatar(u) { return u.avatar_genero === 'mujer' ? 'Mujer' : u.avatar_genero === 'hombre' ? 'Hombre' : NOREG; }
-    function celda(u, k) {
-        if (k === 'perfil_iamii') { var t = txtPerfil(u); return '<span class="usr-chip ' + (t === NOREG ? 'no' : u.perfil_iamii === 'lider' ? 'lider' : 'colab') + '">' + esc(t) + '</span>'; }
-        if (k === 'avatar_genero') { var a = txtAvatar(u); return a === NOREG ? '<span class="usr-chip no">' + NOREG + '</span>' : esc(a); }
-        var v = u[k]; return v == null || v === '' ? '<span class="usr-vacio">—</span>' : esc(v);
+    // Texto de cada columna (tabla, búsqueda y Excel)
+    function valor(u, k) {
+        switch (k) {
+            case 'perfil_iamii': return txtPerfil(u);
+            case 'avatar_genero': return txtAvatar(u);
+            case 'ult_inicio': return u.ultima_sesion ? fecha(u.ultima_sesion.inicio) : '';
+            case 'ult_duracion': var d = durSesion(u.ultima_sesion); return d == null ? '' : dur(d) + (enCurso(u.ultima_sesion) ? ' (en curso)' : '');
+            case 'sesiones': return u.sesiones || 0;
+            case 'tiempo_total': return u.tiempo_total_seg ? dur(u.tiempo_total_seg) : '';
+            case 'pasos': return (u.pasos_aprobados || 0) + ' / 10';
+            default: return u[k] == null ? '' : u[k];
+        }
     }
+    function celda(u, k) {
+        var v = valor(u, k);
+        if (k === 'perfil_iamii') return '<span class="usr-chip ' + (v === NOREG ? 'no' : u.perfil_iamii === 'lider' ? 'lider' : 'colab') + '">' + esc(v) + '</span>';
+        if (k === 'avatar_genero' && v === NOREG) return '<span class="usr-chip no">' + NOREG + '</span>';
+        if (k === 'ult_inicio' && enCurso(u.ultima_sesion)) return '<span class="usr-online" title="En línea"></span>' + esc(v);
+        if (k === 'sesiones' && !v) return '<span class="usr-vacio">0</span>';
+        return v === '' ? '<span class="usr-vacio">—</span>' : esc(v);
+    }
+    function sinTildes(t) { return String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
     function filtrar() {
-        var q = ($('usrBuscar').value || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
-        var f = $('usrFiltro').value;
+        var q = sinTildes($('usrBuscar').value || '').trim(), f = $('usrFiltro').value;
         vista = lista.filter(function (u) {
             if (f === 'registrados' && !u.registrado) return false;
             if (f === 'no' && u.registrado) return false;
             if (f === 'auto' && u.origen !== 'AUTORREGISTRO') return false;
+            if (f === 'sesiones' && !u.sesiones) return false;
             if (!q) return true;
-            return [u.cedula, u.nombre_completo, u.cargo, u.servicio, u.email_institucional, u.email_secundario, u.area, u.proceso, u.perfil]
-                .join(' ').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').indexOf(q) >= 0;
+            return sinTildes([u.cedula, u.nombre_completo, u.cargo, u.servicio, u.email_institucional, u.email_secundario, u.area, u.proceso, u.perfil, u.entidad].join(' ')).indexOf(q) >= 0;
         });
         pagina = 0; pintar();
     }
     function pintar() {
-        var total = vista.length, ini = pagina * POR, fin = Math.min(total, ini + POR), yo = (sesion() || {}).cedula;
-        var reg = lista.filter(function (u) { return u.registrado; }).length;
-        $('usrResumen').textContent = lista.length + ' usuarios · ' + reg + ' registrados en el aplicativo' + (total !== lista.length ? ' · ' + total + ' coinciden con la búsqueda' : '');
+        var total = vista.length, ini = pagina * POR, fin = Math.min(total, ini + POR);
+        var reg = lista.filter(function (u) { return u.registrado; }).length, conSes = lista.filter(function (u) { return u.sesiones; }).length;
+        $('usrResumen').textContent = lista.length + ' usuarios · ' + reg + ' registrados en el aplicativo · ' + conSes + ' con sesiones' + (total !== lista.length ? ' · ' + total + ' coinciden con la búsqueda' : '');
         $('usrCuerpo').innerHTML = vista.slice(ini, fin).map(function (u) {
-            var protegido = u.perfil_iamii === 'lider' || u.cedula === yo;
-            return '<tr data-ced="' + esc(u.cedula) + '">' + CAMPOS.map(function (c) { return '<td title="' + esc(c[0] === 'perfil_iamii' ? txtPerfil(u) : c[0] === 'avatar_genero' ? txtAvatar(u) : (u[c[0]] || '')) + '">' + celda(u, c[0]) + '</td>'; }).join('') +
-                '<td class="usr-acc"><button type="button" class="usr-btn editar" data-acc="editar"><i class="fas fa-pen"></i> Editar</button>' +
-                '<button type="button" class="usr-btn borrar" data-acc="borrar"' + (protegido ? ' disabled title="No se puede eliminar al líder IAMII"' : '') + '><i class="fas fa-trash"></i> Eliminar</button></td></tr>';
-        }).join('') || '<tr><td colspan="15" class="usr-vacio">No hay usuarios que coincidan.</td></tr>';
+            return '<tr tabindex="0" data-ced="' + esc(u.cedula) + '" title="Clic para ver detalle, sesiones y acciones">' +
+                COLS.map(function (c) { return '<td' + (/^(sesiones|pasos)$/.test(c.k) ? ' class="num"' : '') + '>' + celda(u, c.k) + '</td>'; }).join('') + '</tr>';
+        }).join('') || '<tr><td colspan="' + COLS.length + '" class="usr-vacio">No hay usuarios que coincidan.</td></tr>';
         var np = Math.max(1, Math.ceil(total / POR));
         $('usrPaginas').innerHTML = total > POR ? '<button type="button" data-p="-1"' + (pagina === 0 ? ' disabled' : '') + '>‹ Anterior</button><span>Página ' + (pagina + 1) + ' de ' + np + ' · ' + (ini + 1) + '–' + fin + ' de ' + total + '</span><button type="button" data-p="1"' + (pagina >= np - 1 ? ' disabled' : '') + '>Siguiente ›</button>' : '';
     }
@@ -10778,17 +10833,75 @@ body.perfil-lider .nav-item.nav-solo-lider{display:flex!important}
         window.__iamiiRpc('listar_usuarios_iamii', { p_cedula: s.cedula, p_token: s.token }).then(function (r) {
             cargando = false;
             if (!r || !r.ok) { $('usrResumen').textContent = 'No fue posible cargar los usuarios. La sesión pudo expirar: cierre sesión e ingrese de nuevo.'; return; }
-            lista = r.usuarios || []; filtrar();
+            lista = r.usuarios || []; var q = $('usrBuscar').value, p = pagina; filtrar(); if (q) pagina = 0; else pagina = Math.min(p, Math.max(0, Math.ceil(vista.length / POR) - 1)); pintar();
         }, function () { cargando = false; $('usrResumen').textContent = 'No fue posible conectar con la base de datos. Verifique su conexión.'; });
     }
-    function abrirModal(titulo, html, boton, peligro, fn) {
+
+    /* ------------------------------ Modal ------------------------------ */
+    function modal(titulo, html, botones) {
         $('usrModalTitulo').textContent = titulo; $('usrModalCuerpo').innerHTML = html; $('usrModalError').textContent = '';
-        var b = $('usrConfirmar'); b.textContent = boton; b.disabled = false; b.classList.toggle('btn-peligro', !!peligro);
-        accion = fn; $('usrModal').hidden = false;
-        setTimeout(function () { var i = $('usrModal').querySelector('input:not([readonly]),select'); if (i) try { i.focus(); } catch (e) {} }, 50);
+        var cont = $('usrModalBotones'); cont.innerHTML = '';
+        botones.forEach(function (b) {
+            var el = document.createElement('button'); el.type = 'button'; el.className = 'btn ' + (b.clase || 'btn-ghost'); el.innerHTML = b.texto;
+            if (b.deshabilitado) { el.disabled = true; el.title = b.deshabilitado; }
+            el.addEventListener('click', function () {
+                if (!b.fn) return cerrarModal();
+                var res = b.fn();
+                if (typeof res === 'string') { $('usrModalError').textContent = res; return; }
+                if (!res || typeof res.then !== 'function') return;
+                var t = el.innerHTML; el.disabled = true; el.textContent = 'Procesando…';
+                res.then(function (err) { el.disabled = false; el.innerHTML = t; if (err) $('usrModalError').textContent = err; },
+                    function () { el.disabled = false; el.innerHTML = t; $('usrModalError').textContent = 'No fue posible conectar con la base de datos.'; });
+            });
+            cont.appendChild(el);
+        });
+        $('usrModal').hidden = false; $('usrModal').scrollTop = 0;
     }
-    function cerrarModal() { $('usrModal').hidden = true; accion = null; }
+    function cerrarModal() { $('usrModal').hidden = true; actual = null; }
     function usuario(ced) { for (var i = 0; i < lista.length; i++) if (lista[i].cedula === ced) return lista[i]; return null; }
+    function dato(t, v) { return '<div><dt>' + esc(t) + '</dt><dd>' + (v === '' || v == null ? '<span class="usr-vacio">—</span>' : esc(v)) + '</dd></div>'; }
+    function detalle(u) {
+        actual = u;
+        var yo = (sesion() || {}).cedula, protegido = u.perfil_iamii === 'lider' || u.cedula === yo;
+        var html = '<div class="usr-cabecera"><b>' + esc(u.nombre_completo || 'Sin nombre') + '</b><span>C.C. ' + esc(u.cedula) + '</span>' + celda(u, 'perfil_iamii') + '</div>' +
+            '<h4>Datos</h4><dl class="usr-datos">' +
+            ['telefono', 'perfil', 'cargo', 'proceso', 'area', 'email_institucional', 'email_secundario', 'origen', 'entidad', 'servicio', 'avatar_genero']
+                .map(function (k) { var c = COLS.filter(function (x) { return x.k === k; })[0]; return dato(c.t, valor(u, k)); }).join('') + '</dl>' +
+            '<h4><i class="fas fa-stopwatch"></i> Sesiones y tiempos</h4>' +
+            '<p class="usr-nota">El tiempo por paso cuenta solo mientras el colaborador tiene el paso abierto en pantalla.</p>' +
+            '<div class="usr-kpis">' +
+            '<div><span>Último inicio de sesión</span><b>' + (enCurso(u.ultima_sesion) ? '<span class="usr-online"></span>' : '') + esc(valor(u, 'ult_inicio') || '—') + '</b></div>' +
+            '<div><span>Duración de la sesión</span><b>' + esc(valor(u, 'ult_duracion') || '—') + '</b></div>' +
+            '<div><span>Sesiones</span><b>' + (u.sesiones || 0) + '</b></div>' +
+            '<div><span>Tiempo total en pasos</span><b>' + esc(valor(u, 'tiempo_total') || '—') + '</b></div>' +
+            '<div><span>Pasos aprobados</span><b>' + esc(valor(u, 'pasos')) + '</b></div></div>' +
+            '<div id="usrDetalleTiempos" class="usr-cargando">' + (u.sesiones || u.tiempo_total_seg || u.pasos_aprobados ? 'Cargando tiempos por paso…' : 'Este usuario aún no tiene sesiones registradas en el aplicativo.') + '</div>';
+        modal('Detalle del usuario', html, [
+            { texto: '<i class="fas fa-pen"></i> Editar', clase: 'btn-primary', fn: function () { editar(u); } },
+            { texto: '<i class="fas fa-trash"></i> Eliminar', clase: 'btn-peligro', deshabilitado: protegido ? 'No se puede eliminar al líder IAMII' : '', fn: function () { borrar(u); } },
+            { texto: 'Cerrar' }
+        ]);
+        if (!(u.sesiones || u.tiempo_total_seg || u.pasos_aprobados)) return;
+        var s = sesion();
+        window.__iamiiRpc('detalle_usuario_iamii', { p_cedula: s.cedula, p_token: s.token, p_usuario: u.cedula }).then(function (r) {
+            var box = $('usrDetalleTiempos'); if (!box || actual !== u) return;
+            box.classList.remove('usr-cargando');
+            if (!r || !r.ok) { box.textContent = 'No fue posible cargar los tiempos por paso.'; return; }
+            var h = '<div class="usr-pasos">' + (r.pasos || []).map(function (p) {
+                var ok = !!p.aprobado;
+                return '<div class="usr-paso' + (ok ? ' ok' : '') + '"><b>Paso ' + p.paso + '</b><span class="t">' + (p.tiempo_seg ? dur(p.tiempo_seg) : '—') + '</span>' +
+                    (ok ? '✓ Aprobado ' + esc(fecha(p.aprobado)) : p.primera || p.video_visto ? 'En curso' : 'Sin iniciar') +
+                    (p.video_visto ? '<br>Video visto' : '') + (p.puntaje != null ? '<br>Puntaje: ' + esc(p.puntaje) : '') + '</div>';
+            }).join('') + '</div>';
+            var ses = (r.sesiones || []).slice().reverse().slice(0, 15);
+            if (ses.length) {
+                h += '<h4>Últimas sesiones</h4><div class="usr-tabla-mini"><table><thead><tr><th>Inicio</th><th>Última actividad</th><th>Duración</th></tr></thead><tbody>' +
+                    ses.map(function (x) { return '<tr><td>' + (enCurso(x) ? '<span class="usr-online"></span>' : '') + esc(fecha(x.inicio)) + '</td><td>' + esc(fecha(x.fin || x.ultima)) + '</td><td>' + esc(dur(durSesion(x)) + (enCurso(x) ? ' (en curso)' : '')) + '</td></tr>'; }).join('') +
+                    '</tbody></table></div>' + ((r.sesiones || []).length > 15 ? '<p class="usr-nota">Se muestran las 15 sesiones más recientes de ' + r.sesiones.length + '.</p>' : '');
+            }
+            box.innerHTML = h;
+        }, function () { var box = $('usrDetalleTiempos'); if (box) box.textContent = 'No fue posible conectar con la base de datos.'; });
+    }
     function campo(k, label, v, extra) { return '<div class="' + (extra || '') + '"><label for="usrF_' + k + '">' + label + '</label><input id="usrF_' + k + '" value="' + esc(v || '') + '"' + (k === 'cedula' ? ' readonly' : '') + ' maxlength="150"></div>'; }
     function editar(u) {
         var html = '<div class="usr-form">' + campo('cedula', 'Cédula (no se puede cambiar)', u.cedula) +
@@ -10798,57 +10911,120 @@ body.perfil-lider .nav-item.nav-solo-lider{display:flex!important}
             campo('email_institucional', 'Correo institucional', u.email_institucional) + campo('email_secundario', 'Correo secundario', u.email_secundario) +
             campo('origen', 'Origen', u.origen) + campo('entidad', 'Entidad', u.entidad) +
             '<div><label for="usrF_avatar_genero">Avatar</label><select id="usrF_avatar_genero"><option value="">' + NOREG + '</option><option value="mujer">Mujer</option><option value="hombre">Hombre</option></select></div></div>';
-        abrirModal('Editar usuario', html, 'Guardar cambios', false, function () {
-            var d = {}; ['nombre_completo', 'telefono', 'perfil', 'cargo', 'proceso', 'area', 'servicio', 'email_institucional', 'email_secundario', 'origen', 'entidad'].forEach(function (k) { d[k] = $('usrF_' + k).value.trim(); });
-            d.avatar_genero = $('usrF_avatar_genero').value;
-            if (d.nombre_completo.replace(/\s+/g, ' ').length < 3) return 'Escriba el nombre completo.';
-            var mal = ['email_institucional', 'email_secundario'].filter(function (k) { return d[k] && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d[k]); });
-            if (mal.length) return 'Revise el formato del correo electrónico.';
-            var s = sesion();
-            return window.__iamiiRpc('actualizar_usuario_iamii', { p_cedula: s.cedula, p_token: s.token, p_usuario: u.cedula, p_datos: d }).then(function (r) {
-                if (!r || !r.ok) return { sesion: 'La sesión expiró. Ingrese de nuevo.', nombre: 'Escriba el nombre completo.', avatar: 'Avatar no válido.', no_existe: 'El usuario ya no existe.' }[r && r.error] || 'No fue posible guardar los cambios.';
-                Object.keys(d).forEach(function (k) { u[k] = d[k] === '' ? null : d[k]; });
-                u.nombre_completo = d.nombre_completo.replace(/\s+/g, ' ').toUpperCase();
-                ['email_institucional', 'email_secundario'].forEach(function (k) { if (u[k]) u[k] = u[k].toLowerCase(); });
-                try { window.mostrarAvisoIamii('Usuario actualizado.'); } catch (e) {}
-                pintar(); return null;
-            });
-        });
+        modal('Editar usuario', html, [
+            { texto: '<i class="fas fa-check"></i> Guardar cambios', clase: 'btn-primary', fn: function () {
+                var d = {}; ['nombre_completo', 'telefono', 'perfil', 'cargo', 'proceso', 'area', 'servicio', 'email_institucional', 'email_secundario', 'origen', 'entidad'].forEach(function (k) { d[k] = $('usrF_' + k).value.trim(); });
+                d.avatar_genero = $('usrF_avatar_genero').value;
+                if (d.nombre_completo.replace(/\s+/g, ' ').length < 3) return 'Escriba el nombre completo.';
+                if (['email_institucional', 'email_secundario'].some(function (k) { return d[k] && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d[k]); })) return 'Revise el formato del correo electrónico.';
+                var s = sesion();
+                return window.__iamiiRpc('actualizar_usuario_iamii', { p_cedula: s.cedula, p_token: s.token, p_usuario: u.cedula, p_datos: d }).then(function (r) {
+                    if (!r || !r.ok) return { sesion: 'La sesión expiró. Ingrese de nuevo.', nombre: 'Escriba el nombre completo.', avatar: 'Avatar no válido.', no_existe: 'El usuario ya no existe.' }[r && r.error] || 'No fue posible guardar los cambios.';
+                    Object.keys(d).forEach(function (k) { u[k] = d[k] === '' ? null : d[k]; });
+                    u.nombre_completo = d.nombre_completo.replace(/\s+/g, ' ').toUpperCase();
+                    ['email_institucional', 'email_secundario'].forEach(function (k) { if (u[k]) u[k] = u[k].toLowerCase(); });
+                    try { window.mostrarAvisoIamii('Usuario actualizado.'); } catch (e) {}
+                    pintar(); detalle(u); return null;
+                });
+            } },
+            { texto: 'Volver al detalle', fn: function () { detalle(u); } }
+        ]);
         $('usrF_avatar_genero').value = u.avatar_genero || '';
+        setTimeout(function () { try { $('usrF_nombre_completo').focus(); } catch (e) {} }, 50);
     }
     function borrar(u) {
         var html = '<p class="usr-texto">¿Eliminar a <b>' + esc(u.nombre_completo || 'este usuario') + '</b> (C.C. ' + esc(u.cedula) + ')?</p>' +
-            '<p class="usr-texto">Se borrarán también su contraseña, su progreso en los 10 pasos, su certificado y su registro en Talento Humano. <b>Esta acción no se puede deshacer.</b></p>';
-        abrirModal('Eliminar usuario', html, 'Eliminar definitivamente', true, function () {
-            var s = sesion();
-            return window.__iamiiRpc('eliminar_usuario_iamii', { p_cedula: s.cedula, p_token: s.token, p_usuario: u.cedula }).then(function (r) {
-                if (!r || !r.ok) return { sesion: 'La sesión expiró. Ingrese de nuevo.', lider: 'No se puede eliminar al líder IAMII.', no_existe: 'El usuario ya no existe.' }[r && r.error] || 'No fue posible eliminar el usuario.';
-                lista = lista.filter(function (x) { return x.cedula !== u.cedula; });
-                var p = pagina; filtrar(); pagina = Math.min(p, Math.max(0, Math.ceil(vista.length / POR) - 1)); pintar();
-                try { window.mostrarAvisoIamii('Usuario eliminado.'); } catch (e) {}
-                return null;
-            });
-        });
+            '<p class="usr-texto">Se borrarán también su contraseña, su progreso en los 10 pasos, sus sesiones, su certificado y su registro en Talento Humano. <b>Esta acción no se puede deshacer.</b></p>';
+        modal('Eliminar usuario', html, [
+            { texto: '<i class="fas fa-trash"></i> Eliminar definitivamente', clase: 'btn-peligro', fn: function () {
+                var s = sesion();
+                return window.__iamiiRpc('eliminar_usuario_iamii', { p_cedula: s.cedula, p_token: s.token, p_usuario: u.cedula }).then(function (r) {
+                    if (!r || !r.ok) return { sesion: 'La sesión expiró. Ingrese de nuevo.', lider: 'No se puede eliminar al líder IAMII.', no_existe: 'El usuario ya no existe.' }[r && r.error] || 'No fue posible eliminar el usuario.';
+                    lista = lista.filter(function (x) { return x.cedula !== u.cedula; });
+                    var p = pagina; filtrar(); pagina = Math.min(p, Math.max(0, Math.ceil(vista.length / POR) - 1)); pintar();
+                    cerrarModal(); try { window.mostrarAvisoIamii('Usuario eliminado.'); } catch (e) {}
+                    return null;
+                });
+            } },
+            { texto: 'Cancelar', fn: function () { detalle(u); } }
+        ]);
     }
-    $('usrConfirmar').addEventListener('click', function () {
-        if (!accion) return;
-        var b = this, res = accion();
-        if (typeof res === 'string') { $('usrModalError').textContent = res; return; }
-        b.disabled = true; var t = b.textContent; b.textContent = 'Procesando…';
-        Promise.resolve(res).then(function (err) {
-            b.disabled = false; b.textContent = t;
-            if (err) { $('usrModalError').textContent = err; return; }
-            cerrarModal();
-        }, function () { b.disabled = false; b.textContent = t; $('usrModalError').textContent = 'No fue posible conectar con la base de datos.'; });
-    });
-    $('usrCancelar').addEventListener('click', cerrarModal);
+
+    /* --------------------------- Exportar a Excel --------------------------- */
+    var CRC = (function () { var t = [], c, n, k; for (n = 0; n < 256; n++) { c = n; for (k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+    function crc32(b) { var c = 0xFFFFFFFF; for (var i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+    function zip(archivos) {
+        var enc = new TextEncoder(), partes = [], central = [], off = 0;
+        function u16(v) { return [v & 255, (v >>> 8) & 255]; }
+        function u32(v) { return [v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255]; }
+        archivos.forEach(function (a) {
+            var nom = enc.encode(a.nombre), dat = enc.encode(a.texto), crc = crc32(dat);
+            var loc = [].concat(u32(0x04034b50), u16(20), u16(0), u16(0), u16(0), u16(0x21), u32(crc), u32(dat.length), u32(dat.length), u16(nom.length), u16(0));
+            partes.push(new Uint8Array(loc), nom, dat);
+            central.push(new Uint8Array([].concat(u32(0x02014b50), u16(20), u16(20), u16(0), u16(0), u16(0), u16(0x21), u32(crc), u32(dat.length), u32(dat.length),
+                u16(nom.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(off))), nom);
+            off += loc.length + nom.length + dat.length;
+        });
+        var tam = central.reduce(function (s, x) { return s + x.length; }, 0);
+        var fin = new Uint8Array([].concat(u32(0x06054b50), u16(0), u16(0), u16(archivos.length), u16(archivos.length), u32(tam), u32(off), u16(0)));
+        return new Blob(partes.concat(central, [fin]), { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    }
+    function xml(t) { return String(t).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function letra(i) { var s = ''; i++; while (i > 0) { var m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; }
+    function exportar() {
+        var filas = vista.length ? vista : lista;
+        if (!filas.length) { try { window.mostrarAvisoIamii('No hay usuarios para exportar.'); } catch (e) {} return; }
+        var ultCol = letra(COLS.length - 1), n = filas.length + 1;
+        var anchos = COLS.map(function (c, i) {
+            var m = c.t.length; filas.forEach(function (u) { var v = String(valor(u, c.k)); if (v.length > m) m = v.length; });
+            return '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + Math.min(50, Math.max(10, m + 3)) + '" customWidth="1"/>';
+        }).join('');
+        var enc = '<row r="1">' + COLS.map(function (c, i) { return '<c r="' + letra(i) + '1" t="inlineStr" s="1"><is><t>' + xml(c.t) + '</t></is></c>'; }).join('') + '</row>';
+        var cuerpo = filas.map(function (u, r) {
+            return '<row r="' + (r + 2) + '">' + COLS.map(function (c, i) {
+                var v = valor(u, c.k), ref = letra(i) + (r + 2);
+                if ((c.k === 'cedula' && /^\d{1,15}$/.test(v)) || c.k === 'sesiones') return '<c r="' + ref + '"><v>' + Number(v) + '</v></c>';
+                return v === '' ? '' : '<c r="' + ref + '" t="inlineStr"><is><t xml:space="preserve">' + xml(v) + '</t></is></c>';
+            }).join('') + '</row>';
+        }).join('');
+        // Filtros solo en Cargo, Proceso, Entidad y Perfil IAMII: las demás columnas ocultan su botón de filtro
+        var ocultos = COLS.map(function (c, i) { return c.filtro ? '' : '<filterColumn colId="' + i + '" hiddenButton="1"/>'; }).join('');
+        var hoja = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+            '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>' +
+            '<sheetFormatPr defaultRowHeight="15"/><cols>' + anchos + '</cols><sheetData>' + enc + cuerpo + '</sheetData>' +
+            '<autoFilter ref="A1:' + ultCol + n + '">' + ocultos + '</autoFilter></worksheet>';
+        var libro = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+            '<sheets><sheet name="Usuarios" sheetId="1" r:id="rId1"/></sheets>' +
+            '<definedNames><definedName name="_xlnm._FilterDatabase" localSheetId="0" hidden="1">Usuarios!$A$1:$' + ultCol + '$' + n + '</definedName></definedNames></workbook>';
+        var estilos = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+            '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts>' +
+            '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF6A4FD0"/><bgColor indexed="64"/></patternFill></fill></fills>' +
+            '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>' +
+            '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+            '<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs>' +
+            '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+        var blob = zip([
+            { nombre: '[Content_Types].xml', texto: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>' },
+            { nombre: '_rels/.rels', texto: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>' },
+            { nombre: 'xl/workbook.xml', texto: libro },
+            { nombre: 'xl/_rels/workbook.xml.rels', texto: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>' },
+            { nombre: 'xl/styles.xml', texto: estilos },
+            { nombre: 'xl/worksheets/sheet1.xml', texto: hoja }
+        ]);
+        var d = new Date(), f = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        var a = document.createElement('a'), url = URL.createObjectURL(blob);
+        a.href = url; a.download = 'Usuarios_IAMII_' + f + '.xlsx'; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+        try { window.mostrarAvisoIamii('Excel generado con ' + filas.length + ' usuarios.'); } catch (e) {}
+    }
+    window.__exportarUsuariosIamii = exportar;
+
+    /* ------------------------------ Eventos ------------------------------ */
     $('usrModal').addEventListener('click', function (e) { if (e.target === this) cerrarModal(); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('usrModal').hidden) cerrarModal(); });
-    $('usrCuerpo').addEventListener('click', function (e) {
-        var b = e.target.closest('button[data-acc]'); if (!b || b.disabled) return;
-        var u = usuario(b.closest('tr').dataset.ced); if (!u) return;
-        if (b.dataset.acc === 'editar') editar(u); else borrar(u);
-    });
+    function abrirFila(e) { var tr = e.target.closest('tr[data-ced]'); if (!tr) return; var u = usuario(tr.dataset.ced); if (u) detalle(u); }
+    $('usrCuerpo').addEventListener('click', abrirFila);
+    $('usrCuerpo').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrirFila(e); } });
     $('usrPaginas').addEventListener('click', function (e) {
         var b = e.target.closest('button[data-p]'); if (!b || b.disabled) return;
         pagina += parseInt(b.dataset.p, 10); pintar(); var w = document.querySelector('#usuarios .usr-tabla-wrap'); if (w) w.scrollTop = 0;
@@ -10856,16 +11032,18 @@ body.perfil-lider .nav-item.nav-solo-lider{display:flex!important}
     var tq; $('usrBuscar').addEventListener('input', function () { clearTimeout(tq); tq = setTimeout(filtrar, 200); });
     $('usrFiltro').addEventListener('change', filtrar);
     $('usrRecargar').addEventListener('click', cargar);
+    $('usrExportar').addEventListener('click', exportar);
     var sv = window.switchView;
     window.switchView = function (v) {
         if (v === 'usuarios' && !esLider()) return sv.call(this, 'dashboard', null);
         var r = sv.apply(this, arguments);
         if (v === 'usuarios') {
-            try { $('view-title').textContent = 'Usuarios'; $('view-subtitle').textContent = 'Administración de la base de colaboradores'; } catch (e) {}
+            try { $('view-title').textContent = 'Usuarios'; $('view-subtitle').textContent = 'Administración de la base de colaboradores, sesiones y tiempos'; } catch (e) {}
             cargar();
         }
         return r;
     };
+    setInterval(function () { var v = document.querySelector('.section-container.active'); if (v && v.id === 'usuarios' && esLider() && !document.hidden && $('usrModal').hidden) cargar(); }, 60000);
     var cs = window.cerrarSesion;
     window.cerrarSesion = function () { lista = []; vista = []; $('usrCuerpo').innerHTML = ''; cerrarModal(); return cs.apply(this, arguments); };
 })();
