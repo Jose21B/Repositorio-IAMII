@@ -4768,7 +4768,7 @@
                     <div class="usr-tabla-wrap"><table class="usr-tabla" id="usrTabla">
                         <thead><tr>
                             <th>Cédula</th><th>Nombre completo</th><th>Teléfono</th><th>Perfil</th><th>Cargo</th><th>Proceso</th><th>Área</th>
-                            <th>Correo institucional</th><th>Correo secundario</th><th>Origen</th><th>Entidad</th><th>Perfil IAMII</th><th>Servicio</th><th>Avatar</th>
+                            <th>Correo institucional</th><th>Correo secundario</th><th>Origen</th><th data-col="entidad">Entidad</th><th>Perfil IAMII</th><th>Servicio</th><th>Avatar</th>
                             <th>Último inicio de sesión</th><th>Duración de la sesión</th><th>Sesiones</th><th>Tiempo total en pasos</th><th>Pasos aprobados</th>
                         </tr></thead>
                         <tbody id="usrCuerpo"></tbody>
@@ -10718,6 +10718,23 @@ body.perfil-lider .nav-item.nav-solo-lider{display:flex!important}
 .usr-modal[hidden]{display:none}
 .usr-modal-caja{background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(27,20,48,.3);width:100%;max-width:760px;margin:auto;padding:22px}
 #liderTiempos{display:none!important}
+#usuarios .usr-th-filtro{display:inline-flex;align-items:center;gap:6px}
+.usr-filtro-btn{display:inline-flex;align-items:center;gap:2px;border:1px solid #d9d0f3;background:#fff;color:#6a4fd0;border-radius:7px;padding:2px 6px;font-size:11px;cursor:pointer;line-height:1.4}
+.usr-filtro-btn .fa-filter{display:none}
+.usr-filtro-btn.activo{background:#6a4fd0;color:#fff;border-color:#6a4fd0}
+.usr-filtro-btn.activo .fa-filter{display:inline}
+.usr-pop{position:fixed;z-index:4500;background:#fff;border:1px solid #e3ddf5;border-radius:14px;box-shadow:0 18px 44px rgba(27,20,48,.22);padding:12px;font-size:13px;color:#2b2140}
+.usr-pop-titulo{font-weight:700;margin-bottom:8px}
+.usr-pop-buscar{width:100%;box-sizing:border-box;border:1px solid #e3ddf5;border-radius:9px;padding:7px 10px;font:inherit;margin-bottom:8px}
+.usr-pop label{display:flex!important;align-items:center;gap:8px;padding:3px 2px!important;margin:0!important;cursor:pointer;font-size:13px!important;font-weight:500!important;line-height:1.35!important;min-height:0!important}
+.usr-pop input[type=checkbox]{width:16px!important;height:16px!important;min-height:0!important;margin:0!important;padding:0!important;flex:0 0 auto;box-shadow:none!important}
+.usr-pop label span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.usr-pop label em{font-style:normal;color:#8a7fb3;font-size:12px}
+.usr-pop-todo{border-bottom:1px solid #f1eef8;margin-bottom:4px;padding-bottom:6px!important}
+.usr-pop-lista{max-height:240px;overflow:auto}
+.usr-pop-error{color:#c0394f;font-size:12px;min-height:1em;margin:6px 0 0}
+.usr-pop-botones{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;margin-top:8px}
+.usr-pop-botones .btn{padding:6px 12px;font-size:12.5px}
 #usuarios .usr-tabla tbody tr[data-ced]{cursor:pointer}
 #usuarios .usr-tabla tbody tr[data-ced]:hover td,#usuarios .usr-tabla tbody tr[data-ced]:focus td{background:#f6f2ff}
 #usuarios .usr-tabla tbody tr[data-ced]:focus{outline:2px solid #8f7be0;outline-offset:-2px}
@@ -10758,6 +10775,7 @@ body.perfil-lider .nav-item.nav-solo-lider{display:flex!important}
     function $(id) { return document.getElementById(id); }
     var NOREG = 'No registrado aún';
     var lista = [], vista = [], pagina = 0, POR = 50, cargando = false, actual = null;
+    var entSel = null; // null = todas las entidades; si no, Set con las elegidas ('' = vacías)
     var COLS = [
         { k: 'cedula', t: 'Cédula' }, { k: 'nombre_completo', t: 'Nombre completo' }, { k: 'telefono', t: 'Teléfono' }, { k: 'perfil', t: 'Perfil' },
         { k: 'cargo', t: 'Cargo', filtro: true }, { k: 'proceso', t: 'Proceso', filtro: true }, { k: 'area', t: 'Área' },
@@ -10811,6 +10829,7 @@ body.perfil-lider .nav-item.nav-solo-lider{display:flex!important}
             if (f === 'no' && u.registrado) return false;
             if (f === 'auto' && u.origen !== 'AUTORREGISTRO') return false;
             if (f === 'sesiones' && !u.sesiones) return false;
+            if (entSel && !entSel.has(u.entidad || '')) return false;
             if (!q) return true;
             return sinTildes([u.cedula, u.nombre_completo, u.cargo, u.servicio, u.email_institucional, u.email_secundario, u.area, u.proceso, u.perfil, u.entidad].join(' ')).indexOf(q) >= 0;
         });
@@ -10819,7 +10838,7 @@ body.perfil-lider .nav-item.nav-solo-lider{display:flex!important}
     function pintar() {
         var total = vista.length, ini = pagina * POR, fin = Math.min(total, ini + POR);
         var reg = lista.filter(function (u) { return u.registrado; }).length, conSes = lista.filter(function (u) { return u.sesiones; }).length;
-        $('usrResumen').textContent = lista.length + ' usuarios · ' + reg + ' registrados en el aplicativo · ' + conSes + ' con sesiones' + (total !== lista.length ? ' · ' + total + ' coinciden con la búsqueda' : '');
+        $('usrResumen').textContent = lista.length + ' usuarios · ' + reg + ' registrados en el aplicativo · ' + conSes + ' con sesiones' + (total !== lista.length ? ' · ' + total + ' coinciden con la búsqueda' + (entSel ? ' (filtro de entidad activo)' : '') : '');
         $('usrCuerpo').innerHTML = vista.slice(ini, fin).map(function (u) {
             return '<tr tabindex="0" data-ced="' + esc(u.cedula) + '" title="Clic para ver detalle, sesiones y acciones">' +
                 COLS.map(function (c) { return '<td' + (/^(sesiones|pasos)$/.test(c.k) ? ' class="num"' : '') + '>' + celda(u, c.k) + '</td>'; }).join('') + '</tr>';
@@ -10937,6 +10956,7 @@ body.perfil-lider .nav-item.nav-solo-lider{display:flex!important}
             '<p class="usr-texto">Se borrarán también su contraseña, su progreso en los 10 pasos, sus sesiones, su certificado y su registro en Talento Humano. <b>Esta acción no se puede deshacer.</b></p>';
         modal('Eliminar usuario', html, [
             { texto: '<i class="fas fa-trash"></i> Eliminar definitivamente', clase: 'btn-peligro', fn: function () {
+                if (!window.confirm('¿Confirma que desea eliminar definitivamente a ' + (u.nombre_completo || 'este usuario') + ' (C.C. ' + u.cedula + ')?\n\nEsta acción no se puede deshacer.')) return null;
                 var s = sesion();
                 return window.__iamiiRpc('eliminar_usuario_iamii', { p_cedula: s.cedula, p_token: s.token, p_usuario: u.cedula }).then(function (r) {
                     if (!r || !r.ok) return { sesion: 'La sesión expiró. Ingrese de nuevo.', lider: 'No se puede eliminar al líder IAMII.', no_existe: 'El usuario ya no existe.' }[r && r.error] || 'No fue posible eliminar el usuario.';
@@ -11019,6 +11039,72 @@ body.perfil-lider .nav-item.nav-solo-lider{display:flex!important}
     }
     window.__exportarUsuariosIamii = exportar;
 
+    /* ------------------- Filtro de la columna Entidad (estilo Excel) ------------------- */
+    var VACIAS = '(Vacías)', pop = null, abiertoEn = 0;
+    function thEntidad() { var ths = document.querySelectorAll('#usrTabla thead th'); for (var i = 0; i < ths.length; i++) if (ths[i].dataset.col === 'entidad' || ths[i].textContent.trim() === 'Entidad') return ths[i]; return null; }
+    function prepararEncabezado() {
+        var th = thEntidad(); if (!th || th.querySelector('.usr-filtro-btn')) return;
+        th.dataset.col = 'entidad';
+        th.innerHTML = '<span class="usr-th-filtro">Entidad <button type="button" class="usr-filtro-btn" id="usrFiltroEntidad" aria-haspopup="true" aria-expanded="false" title="Filtrar por entidad"><i class="fas fa-filter"></i><span class="usr-filtro-flecha">▾</span></button></span>';
+        $('usrFiltroEntidad').addEventListener('click', function (e) { e.stopPropagation(); if (pop) cerrarPop(); else abrirPop(this); });
+    }
+    function marcarBoton() { var b = $('usrFiltroEntidad'); if (b) { b.classList.toggle('activo', !!entSel); b.title = entSel ? 'Filtro activo: ' + entSel.size + ' entidad(es)' : 'Filtrar por entidad'; } }
+    function cerrarPop() { if (pop) { pop.remove(); pop = null; } var b = $('usrFiltroEntidad'); if (b) b.setAttribute('aria-expanded', 'false'); }
+    function abrirPop(btn) {
+        var cuenta = {};
+        lista.forEach(function (u) { var k = u.entidad || ''; cuenta[k] = (cuenta[k] || 0) + 1; });
+        var claves = Object.keys(cuenta).sort(function (a, b) { if (!a) return 1; if (!b) return -1; return a.localeCompare(b, 'es'); });
+        pop = document.createElement('div'); pop.className = 'usr-pop'; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Filtrar por entidad');
+        pop.innerHTML = '<div class="usr-pop-titulo">Filtrar por entidad</div>' +
+            '<input type="search" class="usr-pop-buscar" placeholder="Buscar entidad" autocomplete="off">' +
+            '<label class="usr-pop-todo"><input type="checkbox" data-todo="1"> <b>(Seleccionar todo)</b></label>' +
+            '<div class="usr-pop-lista">' + claves.map(function (k) {
+                var marcado = !entSel || entSel.has(k);
+                return '<label data-txt="' + esc(sinTildes(k || VACIAS)) + '"><input type="checkbox" value="' + esc(k) + '"' + (marcado ? ' checked' : '') + '> <span>' + esc(k || VACIAS) + '</span><em>' + cuenta[k] + '</em></label>';
+            }).join('') + '</div>' +
+            '<p class="usr-pop-error"></p>' +
+            '<div class="usr-pop-botones"><button type="button" class="btn btn-ghost" data-b="limpiar">Borrar filtro</button><button type="button" class="btn btn-ghost" data-b="cancelar">Cancelar</button><button type="button" class="btn btn-primary" data-b="aceptar">Aceptar</button></div>';
+        document.body.appendChild(pop);
+        var r = btn.getBoundingClientRect(), w = Math.min(320, window.innerWidth - 24);
+        pop.style.width = w + 'px';
+        pop.style.left = Math.max(12, Math.min(r.left, window.innerWidth - w - 12)) + 'px';
+        pop.style.top = Math.min(r.bottom + 6, Math.max(12, window.innerHeight - pop.offsetHeight - 12)) + 'px';
+        btn.setAttribute('aria-expanded', 'true');
+        abiertoEn = Date.now();
+        var todo = pop.querySelector('[data-todo]');
+        function visibles() { return [].slice.call(pop.querySelectorAll('.usr-pop-lista label')).filter(function (l) { return l.style.display !== 'none'; }); }
+        function syncTodo() {
+            var v = visibles(), m = v.filter(function (l) { return l.querySelector('input').checked; }).length;
+            todo.checked = v.length > 0 && m === v.length; todo.indeterminate = m > 0 && m < v.length;
+        }
+        syncTodo();
+        todo.addEventListener('change', function () { visibles().forEach(function (l) { l.querySelector('input').checked = todo.checked; }); syncTodo(); });
+        pop.querySelector('.usr-pop-lista').addEventListener('change', syncTodo);
+        pop.querySelector('.usr-pop-buscar').addEventListener('input', function () {
+            var q = sinTildes(this.value.trim());
+            [].forEach.call(pop.querySelectorAll('.usr-pop-lista label'), function (l) { l.style.display = !q || l.dataset.txt.indexOf(q) >= 0 ? '' : 'none'; });
+            syncTodo();
+        });
+        pop.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var b = e.target.closest('button[data-b]'); if (!b) return;
+            if (b.dataset.b === 'cancelar') return cerrarPop();
+            if (b.dataset.b === 'limpiar') { entSel = null; cerrarPop(); marcarBoton(); filtrar(); return; }
+            var q = pop.querySelector('.usr-pop-buscar').value.trim();
+            var elegidas = [].slice.call(pop.querySelectorAll('.usr-pop-lista input')).filter(function (i) { return i.checked && (!q || i.closest('label').style.display !== 'none'); }).map(function (i) { return i.value; });
+            if (!elegidas.length) { pop.querySelector('.usr-pop-error').textContent = 'Seleccione al menos una entidad.'; return; }
+            entSel = elegidas.length === claves.length ? null : new Set(elegidas);
+            cerrarPop(); marcarBoton(); filtrar();
+        });
+        setTimeout(function () { try { pop.querySelector('.usr-pop-buscar').focus(); } catch (e) {} }, 30);
+    }
+    document.addEventListener('click', function (e) { if (pop && !pop.contains(e.target)) cerrarPop(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && pop) cerrarPop(); });
+    function cerrarPorMovimiento() { if (pop && Date.now() - abiertoEn > 400) cerrarPop(); }
+    window.addEventListener('resize', cerrarPorMovimiento);
+    var wrapTabla = document.querySelector('#usuarios .usr-tabla-wrap'); if (wrapTabla) wrapTabla.addEventListener('scroll', cerrarPorMovimiento);
+    prepararEncabezado();
+
     /* ------------------------------ Eventos ------------------------------ */
     $('usrModal').addEventListener('click', function (e) { if (e.target === this) cerrarModal(); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('usrModal').hidden) cerrarModal(); });
@@ -11045,7 +11131,7 @@ body.perfil-lider .nav-item.nav-solo-lider{display:flex!important}
     };
     setInterval(function () { var v = document.querySelector('.section-container.active'); if (v && v.id === 'usuarios' && esLider() && !document.hidden && $('usrModal').hidden) cargar(); }, 60000);
     var cs = window.cerrarSesion;
-    window.cerrarSesion = function () { lista = []; vista = []; $('usrCuerpo').innerHTML = ''; cerrarModal(); return cs.apply(this, arguments); };
+    window.cerrarSesion = function () { lista = []; vista = []; entSel = null; marcarBoton(); cerrarPop(); $('usrCuerpo').innerHTML = ''; cerrarModal(); return cs.apply(this, arguments); };
 })();
 </script><style id="avatar-genero-css">
 .avatar-seg{display:none!important}
