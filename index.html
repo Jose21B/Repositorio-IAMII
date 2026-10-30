@@ -4090,6 +4090,10 @@
                     <i class="fas fa-book-open"></i>
                     <span>Cartillas Educativas</span>
                 </div>
+                <div class="nav-item nav-solo-lider" id="navUsuarios" onclick="switchView('usuarios', event)">
+                    <i class="fas fa-users-gear"></i>
+                    <span>Usuarios</span>
+                </div>
                 <div class="nav-item nav-desactivado" onclick="moduloDesactivado(event, 'Ayuda')" aria-disabled="true" title="Módulo desactivado temporalmente">
                     <i class="fas fa-circle-question"></i>
                     <span>Ayuda</span>
@@ -4740,6 +4744,44 @@
                     <h2 class="card-title">📘 Cartillas Educativas</h2>
                     <p class="card-subtitle">Selecciona una cartilla para leerla en pantalla o descargarla en PDF.</p>
                     <div class="cartillas-grid" id="cartillasGrid"></div>
+                </div>
+            </div>
+
+            <!-- USUARIOS (solo líder IAMII) -->
+            <div id="usuarios" class="section-container">
+                <div class="content-card usr-card">
+                    <h2 class="card-title">👥 Usuarios del aplicativo</h2>
+                    <p class="card-subtitle">Base de colaboradores (Talento Humano y autorregistros). Edite datos mal digitados o elimine usuarios duplicados.</p>
+                    <div class="usr-barra">
+                        <div class="usr-buscar"><i class="fas fa-magnifying-glass"></i><input type="search" id="usrBuscar" placeholder="Buscar por cédula, nombre, cargo, servicio o correo" autocomplete="off"></div>
+                        <select id="usrFiltro" aria-label="Filtrar usuarios">
+                            <option value="todos">Todos</option>
+                            <option value="registrados">Registrados en el aplicativo</option>
+                            <option value="no">No registrados aún</option>
+                            <option value="auto">Autorregistro</option>
+                        </select>
+                        <button type="button" class="btn btn-ghost" id="usrRecargar"><i class="fas fa-rotate"></i> Actualizar</button>
+                    </div>
+                    <p class="usr-resumen" id="usrResumen">Cargando usuarios…</p>
+                    <div class="usr-tabla-wrap"><table class="usr-tabla" id="usrTabla">
+                        <thead><tr>
+                            <th>Cédula</th><th>Nombre completo</th><th>Teléfono</th><th>Perfil</th><th>Cargo</th><th>Proceso</th><th>Área</th>
+                            <th>Correo institucional</th><th>Correo secundario</th><th>Origen</th><th>Entidad</th><th>Perfil IAMII</th><th>Servicio</th><th>Avatar</th><th class="usr-acc">Acciones</th>
+                        </tr></thead>
+                        <tbody id="usrCuerpo"></tbody>
+                    </table></div>
+                    <div class="usr-paginas" id="usrPaginas"></div>
+                </div>
+            </div>
+            <div class="usr-modal" id="usrModal" hidden>
+                <div class="usr-modal-caja" role="dialog" aria-modal="true" aria-labelledby="usrModalTitulo">
+                    <h3 id="usrModalTitulo"></h3>
+                    <div id="usrModalCuerpo"></div>
+                    <p class="usr-error" id="usrModalError"></p>
+                    <div class="usr-modal-botones">
+                        <button type="button" class="btn btn-ghost" id="usrCancelar">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="usrConfirmar"></button>
+                    </div>
                 </div>
             </div>
 
@@ -10641,6 +10683,191 @@ body.visor-cartilla-abierto{overflow:hidden}
     var cs = window.cerrarSesion;
     if (typeof cs === 'function') window.cerrarSesion = function () { ultimo = []; var c = $('panelRecuperacionesLider'); if (c) { c.style.display = 'none'; var l = $('listaRecuperacionesLider'); if (l) l.innerHTML = ''; } return cs.apply(this, arguments); };
     setInterval(function () { var v = document.querySelector('.section-container.active'); if (v && v.id === 'profesional' && esLider() && !document.hidden) cargar(false); }, 60000);
+})();
+</script><style id="usuarios-lider-css">
+.nav-item.nav-solo-lider{display:none!important}
+body.perfil-lider .nav-item.nav-solo-lider{display:flex!important}
+#usuarios .usr-barra{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0 6px}
+#usuarios .usr-buscar{flex:1 1 280px;display:flex;align-items:center;gap:8px;border:1px solid #e3ddf5;border-radius:12px;padding:0 12px;background:#fff}
+#usuarios .usr-buscar i{color:#8a7fb3}
+#usuarios .usr-buscar input{border:0;outline:0;padding:10px 0;width:100%;font:inherit;background:transparent}
+#usuarios select{border:1px solid #e3ddf5;border-radius:12px;padding:10px 12px;font:inherit;background:#fff;max-width:100%}
+#usuarios .usr-resumen{font-size:13px;color:#6b6480;margin:4px 0 10px}
+#usuarios .usr-tabla-wrap{overflow:auto;max-height:65vh;border:1px solid #ece7fa;border-radius:14px;background:#fff}
+#usuarios .usr-tabla{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:13px}
+#usuarios .usr-tabla th{position:sticky;top:0;z-index:2;background:#f4f0fd;color:#2b2140;font-weight:700;text-align:left;padding:10px 12px;border-bottom:1px solid #e6defa;white-space:nowrap}
+#usuarios .usr-tabla td{padding:9px 12px;border-bottom:1px solid #f1eef8;color:#3a3350;white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis}
+#usuarios .usr-tabla tr:hover td{background:#fbfaff}
+#usuarios .usr-tabla th:first-child,#usuarios .usr-tabla td:first-child{position:sticky;left:0;z-index:1;background:#fff;font-weight:600}
+#usuarios .usr-tabla th:first-child{z-index:3;background:#f4f0fd}
+#usuarios .usr-tabla .usr-acc{position:sticky;right:0;background:#fff;z-index:1;box-shadow:-6px 0 8px -6px rgba(43,33,64,.18)}
+#usuarios .usr-tabla th.usr-acc{background:#f4f0fd;z-index:3}
+#usuarios .usr-vacio{color:#a39cb8;font-style:italic}
+#usuarios .usr-chip{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
+#usuarios .usr-chip.lider{background:#efe9ff;color:#5a43c7}
+#usuarios .usr-chip.colab{background:#e6f6f1;color:#1f7a63}
+#usuarios .usr-chip.no{background:#f4f2f7;color:#7b7590}
+#usuarios .usr-btn{border:0;border-radius:9px;padding:6px 10px;margin-left:4px;font:600 12px Poppins,system-ui,sans-serif;cursor:pointer}
+#usuarios .usr-btn.editar{background:#efe9ff;color:#5a43c7}
+#usuarios .usr-btn.borrar{background:#fdecef;color:#c0394f}
+#usuarios .usr-btn[disabled]{opacity:.4;cursor:not-allowed}
+#usuarios .usr-paginas{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin-top:12px;font-size:13px;color:#6b6480}
+#usuarios .usr-paginas button{border:1px solid #e3ddf5;background:#fff;border-radius:9px;padding:6px 12px;cursor:pointer;font:inherit}
+#usuarios .usr-paginas button[disabled]{opacity:.45;cursor:default}
+.usr-modal{position:fixed;inset:0;z-index:4000;background:rgba(27,20,48,.45);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 16px}
+.usr-modal[hidden]{display:none}
+.usr-modal-caja{background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(27,20,48,.3);width:100%;max-width:640px;margin:auto;padding:22px}
+.usr-modal-caja h3{margin:0 0 12px;color:#2b2140;font-size:18px}
+.usr-form{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.usr-form label{display:block;font-size:12.5px;font-weight:600;color:#3a3350;margin-bottom:4px}
+.usr-form input,.usr-form select{width:100%;box-sizing:border-box;border:1px solid #e3ddf5;border-radius:10px;padding:9px 11px;font:inherit;font-size:14px;background:#fff}
+.usr-form input[readonly]{background:#f6f4fb;color:#6b6480}
+.usr-form .ancho{grid-column:1/-1}
+.usr-texto{font-size:14px;color:#3a3350;line-height:1.55}
+.usr-error{color:#c0394f;font-size:13px;min-height:1em;margin:10px 0 0}
+.usr-modal-botones{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px}
+.usr-modal-botones .btn-peligro{background:#c0394f!important;border-color:#c0394f!important;color:#fff!important}
+@media (max-width:600px){.usr-form{grid-template-columns:1fr}}
+</style><script id="usuarios-lider-js">
+(function () {
+    function $(id) { return document.getElementById(id); }
+    var NOREG = 'No registrado aún';
+    var lista = [], vista = [], pagina = 0, POR = 50, cargando = false, accion = null;
+    var CAMPOS = [['cedula', 'Cédula'], ['nombre_completo', 'Nombre completo'], ['telefono', 'Teléfono'], ['perfil', 'Perfil'], ['cargo', 'Cargo'],
+        ['proceso', 'Proceso'], ['area', 'Área'], ['email_institucional', 'Correo institucional'], ['email_secundario', 'Correo secundario'],
+        ['origen', 'Origen'], ['entidad', 'Entidad'], ['perfil_iamii', 'Perfil IAMII'], ['servicio', 'Servicio'], ['avatar_genero', 'Avatar']];
+    function sesion() { var s = window.__iamiiSesion; return s && window.__iamiiLider && s.token ? s : null; }
+    function esLider() { try { return perfilActivo === 'iamii' && !!sesion(); } catch (e) { return false; } }
+    function esc(t) { var d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; }
+    function txtPerfil(u) { if (!u.perfil_iamii || !u.registrado) return NOREG; return u.perfil_iamii === 'lider' ? 'Líder IAMII' : 'Colaborador'; }
+    function txtAvatar(u) { return u.avatar_genero === 'mujer' ? 'Mujer' : u.avatar_genero === 'hombre' ? 'Hombre' : NOREG; }
+    function celda(u, k) {
+        if (k === 'perfil_iamii') { var t = txtPerfil(u); return '<span class="usr-chip ' + (t === NOREG ? 'no' : u.perfil_iamii === 'lider' ? 'lider' : 'colab') + '">' + esc(t) + '</span>'; }
+        if (k === 'avatar_genero') { var a = txtAvatar(u); return a === NOREG ? '<span class="usr-chip no">' + NOREG + '</span>' : esc(a); }
+        var v = u[k]; return v == null || v === '' ? '<span class="usr-vacio">—</span>' : esc(v);
+    }
+    function filtrar() {
+        var q = ($('usrBuscar').value || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+        var f = $('usrFiltro').value;
+        vista = lista.filter(function (u) {
+            if (f === 'registrados' && !u.registrado) return false;
+            if (f === 'no' && u.registrado) return false;
+            if (f === 'auto' && u.origen !== 'AUTORREGISTRO') return false;
+            if (!q) return true;
+            return [u.cedula, u.nombre_completo, u.cargo, u.servicio, u.email_institucional, u.email_secundario, u.area, u.proceso, u.perfil]
+                .join(' ').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').indexOf(q) >= 0;
+        });
+        pagina = 0; pintar();
+    }
+    function pintar() {
+        var total = vista.length, ini = pagina * POR, fin = Math.min(total, ini + POR), yo = (sesion() || {}).cedula;
+        var reg = lista.filter(function (u) { return u.registrado; }).length;
+        $('usrResumen').textContent = lista.length + ' usuarios · ' + reg + ' registrados en el aplicativo' + (total !== lista.length ? ' · ' + total + ' coinciden con la búsqueda' : '');
+        $('usrCuerpo').innerHTML = vista.slice(ini, fin).map(function (u) {
+            var protegido = u.perfil_iamii === 'lider' || u.cedula === yo;
+            return '<tr data-ced="' + esc(u.cedula) + '">' + CAMPOS.map(function (c) { return '<td title="' + esc(c[0] === 'perfil_iamii' ? txtPerfil(u) : c[0] === 'avatar_genero' ? txtAvatar(u) : (u[c[0]] || '')) + '">' + celda(u, c[0]) + '</td>'; }).join('') +
+                '<td class="usr-acc"><button type="button" class="usr-btn editar" data-acc="editar"><i class="fas fa-pen"></i> Editar</button>' +
+                '<button type="button" class="usr-btn borrar" data-acc="borrar"' + (protegido ? ' disabled title="No se puede eliminar al líder IAMII"' : '') + '><i class="fas fa-trash"></i> Eliminar</button></td></tr>';
+        }).join('') || '<tr><td colspan="15" class="usr-vacio">No hay usuarios que coincidan.</td></tr>';
+        var np = Math.max(1, Math.ceil(total / POR));
+        $('usrPaginas').innerHTML = total > POR ? '<button type="button" data-p="-1"' + (pagina === 0 ? ' disabled' : '') + '>‹ Anterior</button><span>Página ' + (pagina + 1) + ' de ' + np + ' · ' + (ini + 1) + '–' + fin + ' de ' + total + '</span><button type="button" data-p="1"' + (pagina >= np - 1 ? ' disabled' : '') + '>Siguiente ›</button>' : '';
+    }
+    function cargar() {
+        var s = sesion(); if (!s || cargando) return;
+        cargando = true; $('usrResumen').textContent = 'Cargando usuarios…';
+        window.__iamiiRpc('listar_usuarios_iamii', { p_cedula: s.cedula, p_token: s.token }).then(function (r) {
+            cargando = false;
+            if (!r || !r.ok) { $('usrResumen').textContent = 'No fue posible cargar los usuarios. La sesión pudo expirar: cierre sesión e ingrese de nuevo.'; return; }
+            lista = r.usuarios || []; filtrar();
+        }, function () { cargando = false; $('usrResumen').textContent = 'No fue posible conectar con la base de datos. Verifique su conexión.'; });
+    }
+    function abrirModal(titulo, html, boton, peligro, fn) {
+        $('usrModalTitulo').textContent = titulo; $('usrModalCuerpo').innerHTML = html; $('usrModalError').textContent = '';
+        var b = $('usrConfirmar'); b.textContent = boton; b.disabled = false; b.classList.toggle('btn-peligro', !!peligro);
+        accion = fn; $('usrModal').hidden = false;
+        setTimeout(function () { var i = $('usrModal').querySelector('input:not([readonly]),select'); if (i) try { i.focus(); } catch (e) {} }, 50);
+    }
+    function cerrarModal() { $('usrModal').hidden = true; accion = null; }
+    function usuario(ced) { for (var i = 0; i < lista.length; i++) if (lista[i].cedula === ced) return lista[i]; return null; }
+    function campo(k, label, v, extra) { return '<div class="' + (extra || '') + '"><label for="usrF_' + k + '">' + label + '</label><input id="usrF_' + k + '" value="' + esc(v || '') + '"' + (k === 'cedula' ? ' readonly' : '') + ' maxlength="150"></div>'; }
+    function editar(u) {
+        var html = '<div class="usr-form">' + campo('cedula', 'Cédula (no se puede cambiar)', u.cedula) +
+            '<div><label>Perfil IAMII</label><input readonly value="' + esc(txtPerfil(u)) + '"></div>' +
+            campo('nombre_completo', 'Nombre completo *', u.nombre_completo, 'ancho') + campo('telefono', 'Teléfono', u.telefono) + campo('perfil', 'Perfil', u.perfil) +
+            campo('cargo', 'Cargo', u.cargo) + campo('proceso', 'Proceso', u.proceso) + campo('area', 'Área', u.area) + campo('servicio', 'Servicio', u.servicio) +
+            campo('email_institucional', 'Correo institucional', u.email_institucional) + campo('email_secundario', 'Correo secundario', u.email_secundario) +
+            campo('origen', 'Origen', u.origen) + campo('entidad', 'Entidad', u.entidad) +
+            '<div><label for="usrF_avatar_genero">Avatar</label><select id="usrF_avatar_genero"><option value="">' + NOREG + '</option><option value="mujer">Mujer</option><option value="hombre">Hombre</option></select></div></div>';
+        abrirModal('Editar usuario', html, 'Guardar cambios', false, function () {
+            var d = {}; ['nombre_completo', 'telefono', 'perfil', 'cargo', 'proceso', 'area', 'servicio', 'email_institucional', 'email_secundario', 'origen', 'entidad'].forEach(function (k) { d[k] = $('usrF_' + k).value.trim(); });
+            d.avatar_genero = $('usrF_avatar_genero').value;
+            if (d.nombre_completo.replace(/\s+/g, ' ').length < 3) return 'Escriba el nombre completo.';
+            var mal = ['email_institucional', 'email_secundario'].filter(function (k) { return d[k] && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d[k]); });
+            if (mal.length) return 'Revise el formato del correo electrónico.';
+            var s = sesion();
+            return window.__iamiiRpc('actualizar_usuario_iamii', { p_cedula: s.cedula, p_token: s.token, p_usuario: u.cedula, p_datos: d }).then(function (r) {
+                if (!r || !r.ok) return { sesion: 'La sesión expiró. Ingrese de nuevo.', nombre: 'Escriba el nombre completo.', avatar: 'Avatar no válido.', no_existe: 'El usuario ya no existe.' }[r && r.error] || 'No fue posible guardar los cambios.';
+                Object.keys(d).forEach(function (k) { u[k] = d[k] === '' ? null : d[k]; });
+                u.nombre_completo = d.nombre_completo.replace(/\s+/g, ' ').toUpperCase();
+                ['email_institucional', 'email_secundario'].forEach(function (k) { if (u[k]) u[k] = u[k].toLowerCase(); });
+                try { window.mostrarAvisoIamii('Usuario actualizado.'); } catch (e) {}
+                pintar(); return null;
+            });
+        });
+        $('usrF_avatar_genero').value = u.avatar_genero || '';
+    }
+    function borrar(u) {
+        var html = '<p class="usr-texto">¿Eliminar a <b>' + esc(u.nombre_completo || 'este usuario') + '</b> (C.C. ' + esc(u.cedula) + ')?</p>' +
+            '<p class="usr-texto">Se borrarán también su contraseña, su progreso en los 10 pasos, su certificado y su registro en Talento Humano. <b>Esta acción no se puede deshacer.</b></p>';
+        abrirModal('Eliminar usuario', html, 'Eliminar definitivamente', true, function () {
+            var s = sesion();
+            return window.__iamiiRpc('eliminar_usuario_iamii', { p_cedula: s.cedula, p_token: s.token, p_usuario: u.cedula }).then(function (r) {
+                if (!r || !r.ok) return { sesion: 'La sesión expiró. Ingrese de nuevo.', lider: 'No se puede eliminar al líder IAMII.', no_existe: 'El usuario ya no existe.' }[r && r.error] || 'No fue posible eliminar el usuario.';
+                lista = lista.filter(function (x) { return x.cedula !== u.cedula; });
+                var p = pagina; filtrar(); pagina = Math.min(p, Math.max(0, Math.ceil(vista.length / POR) - 1)); pintar();
+                try { window.mostrarAvisoIamii('Usuario eliminado.'); } catch (e) {}
+                return null;
+            });
+        });
+    }
+    $('usrConfirmar').addEventListener('click', function () {
+        if (!accion) return;
+        var b = this, res = accion();
+        if (typeof res === 'string') { $('usrModalError').textContent = res; return; }
+        b.disabled = true; var t = b.textContent; b.textContent = 'Procesando…';
+        Promise.resolve(res).then(function (err) {
+            b.disabled = false; b.textContent = t;
+            if (err) { $('usrModalError').textContent = err; return; }
+            cerrarModal();
+        }, function () { b.disabled = false; b.textContent = t; $('usrModalError').textContent = 'No fue posible conectar con la base de datos.'; });
+    });
+    $('usrCancelar').addEventListener('click', cerrarModal);
+    $('usrModal').addEventListener('click', function (e) { if (e.target === this) cerrarModal(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('usrModal').hidden) cerrarModal(); });
+    $('usrCuerpo').addEventListener('click', function (e) {
+        var b = e.target.closest('button[data-acc]'); if (!b || b.disabled) return;
+        var u = usuario(b.closest('tr').dataset.ced); if (!u) return;
+        if (b.dataset.acc === 'editar') editar(u); else borrar(u);
+    });
+    $('usrPaginas').addEventListener('click', function (e) {
+        var b = e.target.closest('button[data-p]'); if (!b || b.disabled) return;
+        pagina += parseInt(b.dataset.p, 10); pintar(); var w = document.querySelector('#usuarios .usr-tabla-wrap'); if (w) w.scrollTop = 0;
+    });
+    var tq; $('usrBuscar').addEventListener('input', function () { clearTimeout(tq); tq = setTimeout(filtrar, 200); });
+    $('usrFiltro').addEventListener('change', filtrar);
+    $('usrRecargar').addEventListener('click', cargar);
+    var sv = window.switchView;
+    window.switchView = function (v) {
+        if (v === 'usuarios' && !esLider()) return sv.call(this, 'dashboard', null);
+        var r = sv.apply(this, arguments);
+        if (v === 'usuarios') {
+            try { $('view-title').textContent = 'Usuarios'; $('view-subtitle').textContent = 'Administración de la base de colaboradores'; } catch (e) {}
+            cargar();
+        }
+        return r;
+    };
+    var cs = window.cerrarSesion;
+    window.cerrarSesion = function () { lista = []; vista = []; $('usrCuerpo').innerHTML = ''; cerrarModal(); return cs.apply(this, arguments); };
 })();
 </script><style id="avatar-genero-css">
 .avatar-seg{display:none!important}
