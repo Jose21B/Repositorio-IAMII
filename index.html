@@ -3695,7 +3695,7 @@
                             <button type="button" class="lider-ver-clave" data-ver="lcClave">Ver</button>
                         </div>
                     </div>
-                    <p class="lc-ayuda" id="lcOlvido">¿Olvidó su contraseña? Solicite el restablecimiento al líder IAMII.</p>
+                    <button type="button" class="lc-link" id="lcOlvido"><i class="fas fa-key"></i> ¿Olvidó su contraseña? Recuperar contraseña</button>
                     
                     <p class="login-error" id="lcError2"></p>
                     <div class="login-actions column">
@@ -3776,6 +3776,88 @@
                     <div class="login-actions column">
                         <button type="button" class="btn btn-primary btn-block" id="lcRegistrar"><i class="fas fa-user-plus"></i> <span>Crear perfil e ingresar</span></button>
                         <button type="button" class="btn btn-ghost btn-block lc-volver">Cambiar cédula</button>
+                    </div>
+                </div>
+                <!-- Paso 4: cambio de contraseña obligatorio (primer ingreso del líder o contraseña temporal) -->
+                <div id="lcPaso4" style="display:none">
+                    <div class="login-section-title">Crea tu nueva contraseña</div>
+                    <div class="lc-identidad" id="lcIdentidad4"></div>
+                    <p class="lc-nota"><i class="fas fa-shield-halved"></i> Por seguridad, debe cambiar la contraseña asignada antes de continuar. En los próximos ingresos usará la nueva contraseña.</p>
+                    <div class="form-group">
+                        <label for="lcNueva">Nueva contraseña <span class="lc-req">*</span></label>
+                        <div class="login-field lc-clave">
+                            <i class="fas fa-lock"></i>
+                            <input id="lcNueva" type="password" autocomplete="new-password" placeholder="Mín. 8, 1 mayúscula y 1 especial">
+                            <button type="button" class="lider-ver-clave" data-ver="lcNueva">Ver</button>
+                        </div>
+                        <ul class="lc-reglas" id="lcReglas4">
+                            <li data-r="largo">Mínimo 8 caracteres</li>
+                            <li data-r="mayus">Al menos 1 letra mayúscula</li>
+                            <li data-r="esp">Al menos 1 carácter especial (# $ * - . !)</li>
+                        </ul>
+                    </div>
+                    <div class="form-group">
+                        <label for="lcNueva2">Confirme la nueva contraseña <span class="lc-req">*</span></label>
+                        <div class="login-field lc-clave">
+                            <i class="fas fa-lock"></i>
+                            <input id="lcNueva2" type="password" autocomplete="new-password" placeholder="Repita la nueva contraseña">
+                            <button type="button" class="lider-ver-clave" data-ver="lcNueva2">Ver</button>
+                        </div>
+                    </div>
+                    <p class="login-error" id="lcError4"></p>
+                    <div class="login-actions column">
+                        <button type="button" class="btn btn-primary btn-block" id="lcGuardarClave"><i class="fas fa-check"></i> <span>Guardar contraseña e ingresar</span></button>
+                        <button type="button" class="btn btn-ghost btn-block lc-volver">Cancelar</button>
+                    </div>
+                </div>
+                <!-- Paso 5: recuperar contraseña -->
+                <div id="lcPaso5" style="display:none">
+                    <div class="login-section-title">Recuperar contraseña</div>
+                    <div class="lc-identidad" id="lcIdentidad5"></div>
+                    <div id="lcRecColab">
+                        <p class="lc-nota"><i class="fas fa-paper-plane"></i> Se enviará una solicitud al líder IAMII. Él le entregará una <b>contraseña temporal</b>; al ingresar con ella, el aplicativo le pedirá crear una contraseña nueva.</p>
+                        <div class="login-actions column">
+                            <button type="button" class="btn btn-primary btn-block" id="lcEnviarSol"><i class="fas fa-paper-plane"></i> <span>Enviar solicitud al líder IAMII</span></button>
+                        </div>
+                    </div>
+                    <div id="lcRecLider">
+                        <p class="lc-nota"><i class="fas fa-user-shield"></i> Ingrese su <b>código de recuperación</b> de líder IAMII y cree una contraseña nueva.</p>
+                        <div class="form-group">
+                            <label for="lcCodigo">Código de recuperación <span class="lc-req">*</span></label>
+                            <div class="login-field">
+                                <i class="fas fa-key"></i>
+                                <input id="lcCodigo" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="20" placeholder="XXXX-XXXX-XXXX">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                        <label for="lcRecNueva">Nueva contraseña <span class="lc-req">*</span></label>
+                        <div class="login-field lc-clave">
+                            <i class="fas fa-lock"></i>
+                            <input id="lcRecNueva" type="password" autocomplete="new-password" placeholder="Mín. 8, 1 mayúscula y 1 especial">
+                            <button type="button" class="lider-ver-clave" data-ver="lcRecNueva">Ver</button>
+                        </div>
+                        <ul class="lc-reglas" id="lcReglas5">
+                            <li data-r="largo">Mínimo 8 caracteres</li>
+                            <li data-r="mayus">Al menos 1 letra mayúscula</li>
+                            <li data-r="esp">Al menos 1 carácter especial (# $ * - . !)</li>
+                        </ul>
+                    </div>
+                    <div class="form-group">
+                        <label for="lcRecNueva2">Confirme la nueva contraseña <span class="lc-req">*</span></label>
+                        <div class="login-field lc-clave">
+                            <i class="fas fa-lock"></i>
+                            <input id="lcRecNueva2" type="password" autocomplete="new-password" placeholder="Repita la nueva contraseña">
+                            <button type="button" class="lider-ver-clave" data-ver="lcRecNueva2">Ver</button>
+                        </div>
+                    </div>
+                        <div class="login-actions column">
+                            <button type="button" class="btn btn-primary btn-block" id="lcRecuperar"><i class="fas fa-unlock"></i> <span>Cambiar contraseña</span></button>
+                        </div>
+                    </div>
+                    <div class="lc-rec-ok" id="lcRecOk" style="display:none"></div>
+                    <p class="login-error" id="lcError5"></p>
+                    <div class="login-actions column">
+                        <button type="button" class="btn btn-ghost btn-block" id="lcRecVolver">Volver al ingreso</button>
                     </div>
                 </div>
             </div>
@@ -10116,6 +10198,16 @@ body.visor-cartilla-abierto{overflow:hidden}
 #loginCedula .login-error{display:block}
 #loginCedula button[disabled]{opacity:.65;cursor:wait}
 #loginCedula #avatarLoginBox{margin:6px 0 12px}
+#loginCedula .lc-link{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:2px 0;margin:-2px 0 12px;color:#6a4fd0;font:600 13px Poppins,system-ui,sans-serif;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+#loginCedula .lc-link:hover{color:#4f37b0}
+#loginCedula .lc-rec-ok{font-size:13.5px;color:#1f5f4a;background:#eaf8f2;border:1px solid #c7ebdc;border-radius:12px;padding:12px;margin:0 0 12px;line-height:1.5}
+#loginCedula .lc-rec-ok .lc-codigo{display:block;margin:8px 0 4px;font:700 18px 'JetBrains Mono',Consolas,monospace;letter-spacing:.08em;color:#2b2140;text-align:center;background:#fff;border:1px dashed #9fd9c2;border-radius:10px;padding:8px}
+#panelRecuperacionesLider .rec-item{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid #ece7fa;border-radius:12px;margin-top:10px;background:#fbfaff}
+#panelRecuperacionesLider .rec-datos{min-width:0;flex:1 1 220px;font-size:13.5px;color:#3a3350;line-height:1.45}
+#panelRecuperacionesLider .rec-datos b{color:#2b2140}
+#panelRecuperacionesLider .rec-temp{flex:1 1 100%;font-size:13px;color:#1f5f4a;background:#eaf8f2;border:1px solid #c7ebdc;border-radius:10px;padding:10px;line-height:1.5}
+#panelRecuperacionesLider .rec-temp code{font:700 16px 'JetBrains Mono',Consolas,monospace;letter-spacing:.05em;color:#2b2140;background:#fff;border-radius:6px;padding:2px 8px;margin:0 4px}
+#panelRecuperacionesLider .rec-vacio{font-size:13.5px;color:#6b6480;margin:.4rem 0 0}
 </style><script id="login-cedula-js">
 (function () {
     var SB_URL = 'https://xwuwgfeelnwznahpzhsv.supabase.co';
@@ -10139,6 +10231,7 @@ body.visor-cartilla-abierto{overflow:hidden}
     window.__iamiiRpc = llamar;
     var SIN_RED = 'No fue posible conectar con la base de datos. Verifique su conexión a internet e intente de nuevo.';
     var estado = { cedula: '', modo: '' };
+    var pendiente = null;
 
     function error(n, txt) { var e = $('lcError' + n); if (e) e.textContent = txt || ''; }
     function ocupado(btn, si, txt) {
@@ -10147,19 +10240,20 @@ body.visor-cartilla-abierto{overflow:hidden}
         else { btn.disabled = false; if (btn.dataset.txt) btn.innerHTML = btn.dataset.txt; }
     }
     function mostrarPaso(n) {
-        [1, 2, 3].forEach(function (k) { $('lcPaso' + k).style.display = k === n ? 'block' : 'none'; error(k, ''); });
+        [1, 2, 3, 4, 5].forEach(function (k) { $('lcPaso' + k).style.display = k === n ? 'block' : 'none'; error(k, ''); });
         var av = $('avatarLoginBox');
         if (n !== 3) { try { window.ocultarSelectorAvatarLogin(); } catch (e) {} }
         else if (av) {
             $('lcAvatarSlot' + n).appendChild(av);
             try { window.prepararSelectorAvatarLogin(); } catch (e) {}
         }
-        var f = n === 1 ? $('lcCedula') : n === 2 ? $('lcClave') : $('lcServicio');
+        var f = n === 1 ? $('lcCedula') : n === 2 ? $('lcClave') : n === 3 ? $('lcServicio') : n === 4 ? $('lcNueva') : (estado.modo === 'lider' ? $('lcCodigo') : $('lcEnviarSol'));
         setTimeout(function () { try { f.focus({ preventScroll: true }); } catch (e) {} }, 60);
     }
     function reiniciar() {
         estado = { cedula: '', modo: '' };
-        ['lcCedula', 'lcClave', 'lcRegClave', 'lcRegClave2', 'lcServicioOtro'].forEach(function (id) { $(id).value = ''; });
+        ['lcCedula', 'lcClave', 'lcRegClave', 'lcRegClave2', 'lcServicioOtro', 'lcNueva', 'lcNueva2', 'lcCodigo', 'lcRecNueva', 'lcRecNueva2'].forEach(function (id) { $(id).value = ''; });
+        pendiente = null;
         $('lcServicio').value = ''; $('lcGrupoOtro').style.display = 'none';
         try { perfilActivo = null; modoAsistencial = null; datosAsistencial = null; } catch (e) {}
         mostrarPaso(1);
@@ -10223,14 +10317,7 @@ body.visor-cartilla-abierto{overflow:hidden}
         var v = $('lcCedula').value.trim(), btn = $('lcContinuar');
         error(1, '');
         if (!v) { error(1, 'Por favor ingrese su número de cédula.'); return; }
-        if (/[a-záéíóúñ]/i.test(v)) {
-            estado = { cedula: v, modo: 'lider' };
-            $('lcTitulo2').textContent = 'Ingreso Líder IAMII';
-            $('lcIdentidad2').innerHTML = '<i class="fas fa-user-shield"></i> Usuario: <b></b>';
-            $('lcIdentidad2').querySelector('b').textContent = v;
-            $('lcOlvido').style.display = 'none';
-            mostrarPaso(2); return;
-        }
+        if (/[a-záéíóúñ]/i.test(v)) { error(1, 'Ingrese su número de cédula (solo números).'); return; }
         var ced = v.replace(/[.\s,-]/g, '');
         if (!/^[0-9]{3,15}$/.test(ced)) { error(1, 'La cédula debe contener solo números.'); return; }
         ocupado(btn, true, 'Validando…');
@@ -10242,7 +10329,7 @@ body.visor-cartilla-abierto{overflow:hidden}
                 estado.modo = 'lider';
                 $('lcTitulo2').textContent = 'Ingreso Líder IAMII';
                 $('lcIdentidad2').innerHTML = '<i class="fas fa-user-shield"></i> Líder IAMII · Cédula: <b>' + ced + '</b>';
-                $('lcOlvido').style.display = 'none';
+                $('lcOlvido').style.display = '';
                 mostrarPaso(2); return;
             }
             if (r.registrado) {
@@ -10272,7 +10359,8 @@ body.visor-cartilla-abierto{overflow:hidden}
         if (estado.modo === 'lider') {
             llamar('validar_lider_iamii', { p_usuario: estado.cedula, p_clave: c }).then(function (r) {
                 ocupado(btn, false);
-                if (!r) { error(2, 'Usuario o contraseña del líder IAMII incorrectos.'); $('lcClave').value = ''; return; }
+                if (!r) { error(2, 'Cédula o contraseña del líder IAMII incorrectas.'); $('lcClave').value = ''; return; }
+                if (r.debe_cambiar) { pedirCambio('lider', r); return; }
                 entrar('lider', r);
             }, function () { ocupado(btn, false); error(2, SIN_RED); });
             return;
@@ -10280,6 +10368,7 @@ body.visor-cartilla-abierto{overflow:hidden}
         llamar('ingresar_colaborador_iamii', { p_cedula: estado.cedula, p_clave: c }).then(function (r) {
             ocupado(btn, false);
             if (!r || !r.ok) { error(2, 'Contraseña incorrecta. Intente de nuevo.'); $('lcClave').value = ''; return; }
+            if (r.debe_cambiar) { pedirCambio('colaborador', r); return; }
             entrarConProgreso(r);
         }, function () { ocupado(btn, false); error(2, SIN_RED); });
     }
@@ -10306,6 +10395,91 @@ body.visor-cartilla-abierto{overflow:hidden}
         }, function () { ocupado(btn, false); error(3, SIN_RED); });
     }
 
+    /* ---------- Cambio de contraseña obligatorio ---------- */
+    function pintarReglas(input, lista) {
+        $(input).addEventListener('input', function () {
+            var r = reglasClave(this.value);
+            document.querySelectorAll('#' + lista + ' li').forEach(function (li) { li.classList.toggle('ok', !!r[li.dataset.r]); });
+        });
+    }
+    pintarReglas('lcNueva', 'lcReglas4'); pintarReglas('lcRecNueva', 'lcReglas5');
+    function limpiarReglas() { document.querySelectorAll('#lcReglas4 li, #lcReglas5 li').forEach(function (li) { li.classList.remove('ok'); }); }
+    function pedirCambio(perfil, r) {
+        pendiente = { perfil: perfil, r: r };
+        $('lcNueva').value = ''; $('lcNueva2').value = ''; $('lcClave').value = ''; limpiarReglas();
+        $('lcIdentidad4').innerHTML = (perfil === 'lider' ? '<i class="fas fa-user-shield"></i> Líder IAMII · ' : '<i class="fas fa-id-card"></i> ') + '<b></b>';
+        $('lcIdentidad4').querySelector('b').textContent = (r.nombre || '') + ' · Cédula ' + (r.cedula || estado.cedula);
+        mostrarPaso(4);
+    }
+    function guardarCambio() {
+        var a = $('lcNueva').value, b = $('lcNueva2').value, btn = $('lcGuardarClave');
+        error(4, '');
+        if (!pendiente) { reiniciar(); return; }
+        if (!claveSegura(a)) { error(4, 'La contraseña debe tener mínimo 8 caracteres, al menos 1 letra mayúscula y 1 carácter especial (ej: # $ * - . !).'); return; }
+        if (a !== b) { error(4, 'Las contraseñas no coinciden.'); return; }
+        ocupado(btn, true, 'Guardando…');
+        var p = pendiente;
+        llamar('cambiar_clave_iamii', { p_cedula: String(p.r.cedula || estado.cedula), p_token: p.r.token, p_nueva: a }).then(function (x) {
+            ocupado(btn, false);
+            if (!x || !x.ok) {
+                var m = { clave: 'La contraseña debe tener mínimo 8 caracteres, al menos 1 letra mayúscula y 1 carácter especial.', igual: 'La nueva contraseña debe ser diferente a la asignada.', sesion: 'La sesión expiró. Ingrese de nuevo con su cédula.' };
+                error(4, m[x && x.error] || 'No fue posible cambiar la contraseña.');
+                if (x && x.error === 'sesion') setTimeout(reiniciar, 1800);
+                return;
+            }
+            $('lcNueva').value = ''; $('lcNueva2').value = ''; pendiente = null;
+            try { window.mostrarAvisoIamii && window.mostrarAvisoIamii('Contraseña actualizada. Use la nueva contraseña en sus próximos ingresos.'); } catch (e) {}
+            if (p.perfil === 'lider') entrar('lider', p.r); else entrarConProgreso(p.r);
+        }, function () { ocupado(btn, false); error(4, SIN_RED); });
+    }
+
+    /* ---------- Recuperar contraseña (colaborador: solicitud al líder; líder: código de recuperación) ---------- */
+    function abrirRecuperacion() {
+        if (!estado.cedula) { reiniciar(); return; }
+        var lider = estado.modo === 'lider';
+        $('lcIdentidad5').innerHTML = (lider ? '<i class="fas fa-user-shield"></i> Líder IAMII · Cédula: ' : '<i class="fas fa-id-card"></i> Cédula: ') + '<b></b>';
+        $('lcIdentidad5').querySelector('b').textContent = estado.cedula;
+        $('lcRecColab').style.display = lider ? 'none' : '';
+        $('lcRecLider').style.display = lider ? '' : 'none';
+        $('lcRecOk').style.display = 'none'; $('lcRecOk').innerHTML = '';
+        ['lcCodigo', 'lcRecNueva', 'lcRecNueva2'].forEach(function (id) { $(id).value = ''; }); limpiarReglas();
+        mostrarPaso(5);
+    }
+    function recOk(html) { var o = $('lcRecOk'); o.innerHTML = html; o.style.display = ''; $('lcRecColab').style.display = 'none'; $('lcRecLider').style.display = 'none'; error(5, ''); }
+    function enviarSolicitud() {
+        var btn = $('lcEnviarSol');
+        ocupado(btn, true, 'Enviando…');
+        llamar('solicitar_recuperacion_iamii', { p_cedula: estado.cedula }).then(function (x) {
+            ocupado(btn, false);
+            if (!x || !x.ok) { error(5, x && x.error === 'no_registrado' ? 'Esta cédula aún no tiene una contraseña creada. Vuelva al ingreso para registrarse.' : 'No fue posible enviar la solicitud.'); return; }
+            recOk('<i class="fas fa-circle-check"></i> <b>Solicitud enviada.</b> El líder IAMII le entregará una contraseña temporal. Ingrese con ella y el aplicativo le pedirá crear una contraseña nueva.');
+        }, function () { ocupado(btn, false); error(5, SIN_RED); });
+    }
+    function recuperarLider() {
+        var cod = $('lcCodigo').value.trim(), a = $('lcRecNueva').value, b = $('lcRecNueva2').value, btn = $('lcRecuperar');
+        error(5, '');
+        if (!cod) { error(5, 'Ingrese su código de recuperación.'); return; }
+        if (!claveSegura(a)) { error(5, 'La contraseña debe tener mínimo 8 caracteres, al menos 1 letra mayúscula y 1 carácter especial (ej: # $ * - . !).'); return; }
+        if (a !== b) { error(5, 'Las contraseñas no coinciden.'); return; }
+        ocupado(btn, true, 'Verificando…');
+        llamar('recuperar_lider_iamii', { p_cedula: estado.cedula, p_codigo: cod, p_nueva: a }).then(function (x) {
+            ocupado(btn, false);
+            if (!x || !x.ok) {
+                var m = { codigo: 'El código de recuperación no es correcto.', bloqueado: 'Demasiados intentos fallidos. Intente de nuevo en 30 minutos.', clave: 'La contraseña debe tener mínimo 8 caracteres, al menos 1 letra mayúscula y 1 carácter especial.' };
+                error(5, m[x && x.error] || 'No fue posible recuperar la contraseña.');
+                return;
+            }
+            ['lcCodigo', 'lcRecNueva', 'lcRecNueva2'].forEach(function (id) { $(id).value = ''; });
+            recOk('<i class="fas fa-circle-check"></i> <b>Contraseña actualizada.</b> Ya puede ingresar con su nueva contraseña.<br>Su código de recuperación anterior dejó de funcionar. <b>Guarde este nuevo código</b> en un lugar seguro; lo necesitará si vuelve a olvidar la contraseña:<span class="lc-codigo"></span>');
+            $('lcRecOk').querySelector('.lc-codigo').textContent = x.nuevo_codigo || '';
+        }, function () { ocupado(btn, false); error(5, SIN_RED); });
+    }
+    $('lcOlvido').addEventListener('click', abrirRecuperacion);
+    $('lcEnviarSol').addEventListener('click', enviarSolicitud);
+    $('lcRecuperar').addEventListener('click', recuperarLider);
+    $('lcGuardarClave').addEventListener('click', guardarCambio);
+    $('lcRecVolver').addEventListener('click', function () { $('lcClave').value = ''; mostrarPaso(2); });
+
     // Servicios: misma lista del formulario original (incluye «Otro»)
     var orig = $('loginServicio');
     $('lcServicio').innerHTML = orig ? orig.innerHTML : '<option value="">Seleccione un servicio...</option><option value="Otro">Otro</option>';
@@ -10325,11 +10499,86 @@ body.visor-cartilla-abierto{overflow:hidden}
     $('lcRegistrar').addEventListener('click', registrar);
     function enter(id, fn) { $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); fn(); } }); }
     enter('lcCedula', continuar); enter('lcClave', ingresar); enter('lcRegClave2', registrar); enter('lcServicioOtro', registrar);
+    enter('lcNueva2', guardarCambio); enter('lcRecNueva2', recuperarLider);
 
     // Cerrar sesión: volver al ingreso por cédula
     var cs = window.cerrarSesion;
     window.cerrarSesion = function () { var r = cs.apply(this, arguments); reiniciar(); return r; };
     reiniciar();
+})();
+</script><script id="recuperaciones-lider-js">
+(function () {
+    function $(id) { return document.getElementById(id); }
+    function sesion() { var s = window.__iamiiSesion; return s && window.__iamiiLider && s.token ? s : null; }
+    function esLider() { try { return perfilActivo === 'iamii' && !!sesion(); } catch (e) { return false; } }
+    function fecha(iso) { try { return new Date(iso).toLocaleString('es-CO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; } }
+    function esc(t) { var d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; }
+    function tarjeta() {
+        var c = $('panelRecuperacionesLider'); if (c) return c;
+        var ref = $('panelSolicitudesLider'); if (!ref) return null;
+        c = document.createElement('div'); c.id = 'panelRecuperacionesLider'; c.className = 'content-card'; c.style.display = 'none';
+        c.innerHTML = '<h2 class="card-title">🔑 Solicitudes de recuperación de contraseña</h2>' +
+            '<p class="card-subtitle">Colaboradores que olvidaron su contraseña. Genere una contraseña temporal y entréguela al colaborador; al ingresar con ella deberá crear una nueva.</p>' +
+            '<div id="listaRecuperacionesLider"></div>';
+        ref.parentNode.insertBefore(c, ref.nextSibling);
+        return c;
+    }
+    var ultimo = [];
+    function pintar(lista) {
+        var c = tarjeta(); if (!c) return;
+        if (!esLider()) { c.style.display = 'none'; return; }
+        c.style.display = '';
+        var cont = $('listaRecuperacionesLider');
+        var temporales = {};
+        cont.querySelectorAll('.rec-item[data-ced]').forEach(function (it) { var t = it.querySelector('.rec-temp'); if (t) temporales[it.dataset.ced] = it.outerHTML; });
+        var html = lista.map(function (x) {
+            return '<div class="rec-item" data-ced="' + esc(x.cedula) + '"><div class="rec-datos"><b>' + esc(x.nombre) + '</b><br>C.C. ' + esc(x.cedula) + ' · ' + esc(x.cargo || '') + (x.servicio ? ' · ' + esc(x.servicio) : '') +
+                '<br><small>Solicitado: ' + esc(fecha(x.solicitado_en)) + '</small></div>' +
+                '<button type="button" class="btn btn-primary rec-generar"><i class="fas fa-key"></i> Generar contraseña temporal</button></div>';
+        }).join('');
+        Object.keys(temporales).forEach(function (k) { if (!lista.some(function (x) { return String(x.cedula) === k; })) html = temporales[k] + html; });
+        cont.innerHTML = html || '<p class="rec-vacio"><i class="fas fa-circle-check"></i> No hay solicitudes pendientes.</p>';
+    }
+    function cargar(avisar) {
+        var s = sesion(); if (!s || !window.__iamiiRpc) return Promise.resolve();
+        return window.__iamiiRpc('listar_recuperaciones_iamii', { p_cedula: s.cedula, p_token: s.token }).then(function (r) {
+            if (!r || !r.ok) return;
+            ultimo = r.solicitudes || []; pintar(ultimo);
+            if (avisar && ultimo.length) { try { window.mostrarAvisoIamii('Tiene ' + ultimo.length + (ultimo.length === 1 ? ' solicitud' : ' solicitudes') + ' de recuperación de contraseña. Revíselas en el panel de solicitudes.'); } catch (e) {} }
+        }, function () {});
+    }
+    document.addEventListener('click', function (ev) {
+        var b = ev.target.closest && ev.target.closest('#panelRecuperacionesLider .rec-generar'); if (!b) return;
+        var it = b.closest('.rec-item'), s = sesion(); if (!it || !s) return;
+        b.disabled = true; b.innerHTML = 'Generando…';
+        window.__iamiiRpc('restablecer_colaborador_iamii', { p_cedula: s.cedula, p_token: s.token, p_colaborador: it.dataset.ced }).then(function (r) {
+            if (!r || !r.ok) { b.disabled = false; b.innerHTML = '<i class="fas fa-key"></i> Generar contraseña temporal'; try { window.mostrarAvisoIamii('No fue posible generar la contraseña temporal.'); } catch (e) {} return; }
+            b.remove();
+            var t = document.createElement('div'); t.className = 'rec-temp';
+            t.innerHTML = '<i class="fas fa-circle-check"></i> Contraseña temporal: <code></code> <button type="button" class="btn btn-ghost rec-copiar">Copiar</button><br>Entréguela al colaborador de forma personal. Al ingresar con ella deberá crear una contraseña nueva. Esta contraseña no se volverá a mostrar.';
+            t.querySelector('code').textContent = r.clave_temporal;
+            it.appendChild(t);
+        }, function () { b.disabled = false; b.innerHTML = '<i class="fas fa-key"></i> Generar contraseña temporal'; });
+    });
+    document.addEventListener('click', function (ev) {
+        var b = ev.target.closest && ev.target.closest('#panelRecuperacionesLider .rec-copiar'); if (!b) return;
+        var code = b.parentNode.querySelector('code'); if (!code) return;
+        var t = code.textContent;
+        (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { b.textContent = 'Copiada'; }, function () {
+            var r = document.createRange(); r.selectNodeContents(code); var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); b.textContent = 'Seleccionada';
+        });
+    });
+    ['switchView', 'finalizarIngreso'].forEach(function (n) {
+        var f = window[n]; if (typeof f !== 'function') return;
+        window[n] = function () {
+            var r = f.apply(this, arguments);
+            try { if (n === 'finalizarIngreso') setTimeout(function () { cargar(true); }, 1500); else if (arguments[0] === 'profesional') cargar(false); else pintar(ultimo); } catch (e) {}
+            return r;
+        };
+    });
+    var cs = window.cerrarSesion;
+    if (typeof cs === 'function') window.cerrarSesion = function () { ultimo = []; var c = $('panelRecuperacionesLider'); if (c) { c.style.display = 'none'; var l = $('listaRecuperacionesLider'); if (l) l.innerHTML = ''; } return cs.apply(this, arguments); };
+    setInterval(function () { var v = document.querySelector('.section-container.active'); if (v && v.id === 'profesional' && esLider() && !document.hidden) cargar(false); }, 60000);
 })();
 </script><style id="avatar-genero-css">
 .avatar-seg{display:none!important}
