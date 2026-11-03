@@ -3695,7 +3695,6 @@ function iamiiId(t) { return String(t == null ? '' : t).replace(/[^A-Za-z0-9_-]/
                             <input id="lcCedula" type="text" inputmode="text" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="40" placeholder="Ej: 1061234567">
                         </div>
                     </div>
-                    <p class="lc-ayuda"><i class="fas fa-user-shield"></i> Líder IAMII: ingrese también con su número de cédula.</p>
                     <p class="login-error" id="lcError1"></p>
                     <div class="login-actions column">
                         <button type="button" class="btn btn-primary btn-block" id="lcContinuar"><i class="fas fa-arrow-right"></i> <span>Continuar</span></button>
@@ -4111,11 +4110,6 @@ function iamiiId(t) { return String(t == null ? '' : t).replace(/[^A-Za-z0-9_-]/
                 <div class="nav-item nav-solo-lider" id="navUsuarios" onclick="switchView('usuarios', event)">
                     <i class="fas fa-users-gear"></i>
                     <span>Usuarios</span>
-                </div>
-                <div class="nav-item nav-desactivado" onclick="moduloDesactivado(event, 'Ayuda')" aria-disabled="true" title="Módulo desactivado temporalmente">
-                    <i class="fas fa-circle-question"></i>
-                    <span>Ayuda</span>
-                    <span class="nav-desactivado-tag">OFF</span>
                 </div>
             </div>
 
