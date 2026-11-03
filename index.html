@@ -4119,24 +4119,6 @@
                     <p id="view-subtitle"></p>
                 </div>
                 <div class="topbar-actions">
-                    <div style="position:relative;" id="notifWrapper">
-                        <button class="notif-bell" title="Notificaciones" onclick="toggleNotifMenu(event)">
-                            <i class="fas fa-bell"></i>
-                            <span class="notif-badge">3</span>
-                        </button>
-                        <div id="notifDropdown" style="display:none; position:absolute; top:calc(100% + 8px); left:0; background:#FFFFFF; border-radius:var(--border-radius-md); box-shadow:var(--shadow-md); min-width:280px; padding:0.5rem; z-index:50;">
-                            <div style="padding:0.5rem 0.75rem; font-weight:700; color:var(--neutral-dark); font-size:0.9rem; border-bottom:1px solid var(--neutral-light); margin-bottom:0.25rem;">Notificaciones</div>
-                            <button onclick="switchView('certificados', event); toggleNotifMenu(event);" style="width:100%; text-align:left; background:none; border:none; padding:0.6rem 0.75rem; border-radius:8px; cursor:pointer; font-size:0.82rem; color:var(--neutral-dark); display:block;" onmouseover="this.style.background='var(--neutral-lighter)'" onmouseout="this.style.background='none'">
-                                <strong style="color:var(--warning);">Paso 4</strong> próximo a vencimiento — revalida antes del 18/04.
-                            </button>
-                            <button class="notif-desactivada" onclick="moduloDesactivado(event, 'Capacitaciones')" aria-disabled="true" style="width:100%; text-align:left; background:none; border:none; padding:0.6rem 0.75rem; border-radius:8px; cursor:pointer; font-size:0.82rem; color:var(--neutral-dark); display:block;" onmouseover="this.style.background='var(--neutral-lighter)'" onmouseout="this.style.background='none'">
-                                Nueva capacitación disponible: <strong>Apoyo efectivo a madres</strong>.
-                            </button>
-                            <button onclick="switchView('evidencia', event); toggleNotifMenu(event);" style="width:100%; text-align:left; background:none; border:none; padding:0.6rem 0.75rem; border-radius:8px; cursor:pointer; font-size:0.82rem; color:var(--neutral-dark); display:block;" onmouseover="this.style.background='var(--neutral-lighter)'" onmouseout="this.style.background='none'">
-                                Tienes <strong>2 novedades</strong> nuevas por revisar.
-                            </button>
-                        </div>
-                    </div>
                     <div class="user-badge" style="position:relative;" id="userBadgeWrapper">
                         <div>
                             <strong id="userBadgeNombre">Dr. Fernando Torres</strong>
