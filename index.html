@@ -14,6 +14,8 @@
     <meta name="format-detection" content="telephone=no">
     <title>Certificación Continua IAMII</title>
 <script id="escala-pantallas-grandes">
+function iamiiEsc(t) { return String(t == null ? '' : t).replace(/[&<>"'`]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' }[c]; }); }
+function iamiiId(t) { return String(t == null ? '' : t).replace(/[^A-Za-z0-9_-]/g, ''); }
 /* Pantallas grandes (2K, 4K, ultrawide): escala todo el aplicativo en proporción a una pantalla Full HD
    (1920×1080) para que no quede diminuto. En Full HD, portátiles, tabletas y celulares no cambia nada. */
 (function () {
@@ -7126,7 +7128,8 @@ window.temaJuegoIamii = (function () {
             return;
         }
 
-        lista.innerHTML = solicitudes.slice().reverse().map(function (s) {
+        lista.innerHTML = solicitudes.slice().reverse().map(function (s0) {
+            const s = Object.assign({}, s0, { id: iamiiId(s0.id), nombre: iamiiEsc(s0.nombre), cargo: iamiiEsc(s0.cargo), servicio: iamiiEsc(s0.servicio), puntaje: s0.puntaje == null || isNaN(Number(s0.puntaje)) ? null : Number(s0.puntaje) });
             let estadoHtml, acciones;
             if (s.estado === 'pendiente') {
                 estadoHtml = '<span class="reconocimiento-estado pendiente" style="margin-top:.3rem;"><i class="fas fa-clock"></i> Pendiente</span>';
@@ -7427,7 +7430,7 @@ window.temaJuegoIamii = (function () {
             const bnom = $('userBadgeNombre');
             saludo.innerHTML =
                 '<div class="saludo-avatar">' + svgAvatar(avatarPerfil, 64) + '</div>' +
-                '<div class="saludo-texto"><strong>¡Hola, ' + ((bnom && bnom.textContent) || 'profesional') + '!</strong>' +
+                '<div class="saludo-texto"><strong>¡Hola, ' + iamiiEsc((bnom && bnom.textContent) || 'profesional') + '!</strong>' +
                 '<span>Tu avatar IAMII</span></div>' +
                 '<button class="btn btn-small btn-light" onclick="abrirModalAvatar()"><i class="fas fa-user-pen"></i> Cambiar avatar</button>';
         }
