@@ -11308,6 +11308,11 @@ body.perfil-colaborador [onclick="abrirModalAvatar()"],body.perfil-colaborador b
             // guardado por el de un navegador vacío o desactualizado.
             if (!r || !r.ok) throw new Error('progreso');
             var hayLocal = leer(CLAVES.prog)[u] != null || leer(CLAVES.colab)[u] != null;
+            // Pasos aprobados según los tiempos guardados: si el navegador tiene MÁS que la base
+            // (la base quedó con una copia vacía o incompleta), gana el navegador y se sube.
+            var aprob = function (t) { var ps = (t && t.pasos) || {}, c = 0; for (var k in ps) if (ps[k] && ps[k].aprobado) c++; return c; };
+            var masLocal = !!(r.datos && aprob(leer(CLAVES.tiempos)[u]) > aprob(r.datos.tiempos));
+            if (masLocal) local = Math.max(local, (r.datos.ts || 0) + 1);
             if (r.datos && (r.datos.ts || 0) >= local) aplicar(u, r.datos);
             // La base no tiene progreso de esta persona: si este navegador sí lo tiene, se recupera y se sube
             else if (!r.datos && !hayLocal) aplicar(u, { ts: 0 });
