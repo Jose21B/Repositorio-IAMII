@@ -8939,7 +8939,46 @@ body.perfil-lider #dashboard .home-stats-grid { display: none; }
             }
         });
         if (cambio) escribir(LS_COLAB, all);
+        return desdeServidor(r);
+    }
+    // Para el líder, los indicadores salen de la base de datos (todos los colaboradores registrados,
+    // desde cualquier equipo), no de lo guardado en este navegador.
+    function desdeServidor(local) {
+        var lista = window.__iamiiUsuariosLider;
+        if (!esLider() || !Array.isArray(lista)) return local;
+        manuales = {};
+        var hace7 = Date.now() - 7 * 24 * 3600 * 1000;
+        var r = { total: 0, completaron: 0, semana: 0, sumaPuntaje: 0, aprobaron: 0, resp: local.resp, resueltas: local.resueltas, servicios: {} };
+        lista.forEach(function (u) {
+            if (!u || !u.registrado || u.perfil_iamii === 'lider') return;
+            var aprob = Math.max(0, Math.min(TOTAL_PASOS, Number(u.pasos_aprobados) || 0));
+            r.total++;
+            var serv = nombreServicio(u.servicio);
+            var s = r.servicios[serv] || (r.servicios[serv] = { n: 0, avance: 0 });
+            s.n++; s.avance += aprob / TOTAL_PASOS;
+            if (aprob >= TOTAL_PASOS) {
+                var puntaje = (Number(u.puntaje_total) || 0) / TOTAL_PASOS;
+                r.completaron++; r.sumaPuntaje += puntaje;
+                if (Math.round(puntaje) >= META) r.aprobaron++;
+                var f = u.progreso_actualizado ? new Date(u.progreso_actualizado).getTime() : 0;
+                if (f >= hace7) r.semana++;
+            }
+        });
         return r;
+    }
+    var cargandoSrv = false, pollSrv = null;
+    function cargarServidor() {
+        var s = window.__iamiiSesion;
+        if (!esLider() || !s || !s.token || !window.__iamiiRpc || cargandoSrv) return;
+        cargandoSrv = true;
+        window.__iamiiRpc('listar_usuarios_iamii', { p_cedula: s.cedula, p_token: s.token }).then(function (r) {
+            cargandoSrv = false;
+            if (r && r.ok && Array.isArray(r.usuarios)) { window.__iamiiUsuariosLider = r.usuarios; pintar(); }
+        }, function () { cargandoSrv = false; });
+    }
+    function iniciarServidor() {
+        if (pollSrv) { clearInterval(pollSrv); pollSrv = null; }
+        cargarServidor(); setTimeout(cargarServidor, 2000); pollSrv = setInterval(cargarServidor, 60000);
     }
 
     /* -------------------------------- Pintado -------------------------------- */
@@ -9075,9 +9114,9 @@ body.perfil-lider #dashboard .home-stats-grid { display: none; }
 
     envolver('aprobarPasoIamii', null, function () { sincronizarActual(); });
     envolver('revertirPasoIamii', null, function () { sincronizarActual(); });
-    envolver('finalizarIngreso', null, function () { registrarColaborador(); sincronizarActual(); pintar(); });
-    envolver('switchView', function () { sincronizarActual(); }, function (ctx, vista) { if (vista === 'dashboard') pintar(); });
-    envolver('cerrarSesion', function () { sincronizarActual(); }, function () { var c = $('liderKpis'); if (c) c.hidden = true; });
+    envolver('finalizarIngreso', null, function () { registrarColaborador(); sincronizarActual(); pintar(); setTimeout(iniciarServidor, 300); });
+    envolver('switchView', function () { sincronizarActual(); }, function (ctx, vista) { if (vista === 'dashboard') { pintar(); cargarServidor(); } });
+    envolver('cerrarSesion', function () { sincronizarActual(); }, function () { if (pollSrv) { clearInterval(pollSrv); pollSrv = null; } window.__iamiiUsuariosLider = null; var c = $('liderKpis'); if (c) c.hidden = true; });
 
     // Los juegos pueden pedir que su marco tome el alto exacto de su contenido
     window.addEventListener('message', function (ev) {
