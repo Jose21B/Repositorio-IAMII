@@ -11289,12 +11289,13 @@ body.perfil-colaborador [onclick="abrirModalAvatar()"],body.perfil-colaborador b
         var s = sesion, args = { p_cedula: s.u, p_token: s.token, p_datos: snapshot(s.u), p_resumen: resumen(s.u) };
         enviando = true;
         var p = rpc('guardar_progreso_iamii', args, keep);
-        return Promise.resolve(p).then(function () {}, function () {}).then(function () {
+        var fallo = false;
+        return Promise.resolve(p).then(function (r) { if (!keep && (!r || r.ok === false)) fallo = true; }, function () { fallo = true; }).then(function () {
             enviando = false;
-            if (pendiente) { pendiente = false; programar(); }
+            if (pendiente || fallo) { pendiente = false; programar(); }
         });
     }
-    function programar() { try { setTimeout(function () { window.pintarContinuarIamii && window.pintarContinuarIamii(); }, 300); } catch (e) {} if (!sesion || timer) return; timer = setTimeout(function () { timer = null; enviar(false); }, 4000); }
+    function programar() { try { setTimeout(function () { window.pintarContinuarIamii && window.pintarContinuarIamii(); }, 300); } catch (e) {} if (!sesion || timer) return; timer = setTimeout(function () { timer = null; enviar(false); }, 15000); }
     Storage.prototype.setItem = function (k, v) {
         setOrig.call(this, k, v);
         try { if (sesion && this === window.localStorage && SEGUIDAS[k]) { tocar(sesion.u); programar(); } } catch (e) {}
@@ -11318,10 +11319,15 @@ body.perfil-colaborador [onclick="abrirModalAvatar()"],body.perfil-colaborador b
             else if (!r.datos && !hayLocal) aplicar(u, { ts: 0 });
             sesion = { u: u, token: token };
             ponerP5(u);
-            if ((r.datos && local > (r.datos.ts || 0)) || (!r.datos && hayLocal)) { tocar(u); programar(); }
+            if ((r.datos && local > (r.datos.ts || 0)) || (!r.datos && hayLocal)) { tocar(u); setTimeout(function () { enviar(false); }, 2000); }
         });
     };
     window.iamiiGuardarProgresoAhora = function () { return enviar(false); };
+    // Al aprobar un paso se guarda enseguida (no espera los 15 s)
+    ['aprobarPasoIamii', 'revertirPasoIamii'].forEach(function (n) {
+        var o = window[n]; if (typeof o !== 'function') return;
+        window[n] = function () { var r = o.apply(this, arguments); setTimeout(function () { enviar(false); }, 1200); return r; };
+    });
     setInterval(revisarP5, 5000);
     document.addEventListener('visibilitychange', function () { if (document.hidden) enviar(true); });
     window.addEventListener('pagehide', function () { enviar(true); });
