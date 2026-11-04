@@ -10378,7 +10378,8 @@ body.visor-cartilla-abierto{overflow:hidden}
         var bs = [$('lcIngresar'), $('lcRegistrar')];
         bs.forEach(function (b) { ocupado(b, true, 'Cargando su progreso…'); });
         var p = window.iamiiHidratarProgreso ? window.iamiiHidratarProgreso(String(r.cedula), r.token) : Promise.resolve();
-        p.catch(function () {}).then(function () { bs.forEach(function (b) { ocupado(b, false); }); entrar('colaborador', r); });
+        p.then(function () { bs.forEach(function (b) { ocupado(b, false); }); entrar('colaborador', r); },
+            function () { bs.forEach(function (b) { ocupado(b, false); }); error(estado.modo === 'ingreso' ? 2 : 3, 'No fue posible cargar su progreso desde la base de datos. Espere un momento e intente de nuevo.'); });
     }
     function entrar(perfil, d) {
         window.__iamiiVence = perfil === 'lider' ? null : { fecha: d.vence_en ? Date.parse(d.vence_en) : null, vencido: !!d.vencido };
@@ -10861,7 +10862,7 @@ body.perfil-lider .nav-item.nav-solo-lider{display:flex!important}
         vista = lista.filter(function (u) {
             if (f === 'registrados' && !u.registrado) return false;
             if (f === 'no' && u.registrado) return false;
-            if (f === 'auto' && u.origen !== 'AUTORREGISTRO') return false;
+            if (f === 'auto' && String(u.origen || '').toUpperCase() !== 'AUTORREGISTRO') return false;
             if (f === 'sesiones' && !u.sesiones) return false;
             if (entSel && !entSel.has(u.entidad || '')) return false;
             if (!q) return true;
@@ -11303,12 +11304,17 @@ body.perfil-colaborador [onclick="abrirModalAvatar()"],body.perfil-colaborador b
         return rpc('cargar_progreso_iamii', { p_cedula: u, p_token: token }).then(function (r) {
             var local = leer(META)[u] || 0;
             // La base de datos manda: si allí no hay progreso (p. ej. fue reiniciado), se limpia el del navegador
-            if (r && r.ok && r.datos && (r.datos.ts || 0) >= local) aplicar(u, r.datos);
-            else if (r && r.ok && !r.datos) aplicar(u, { ts: 0 });
+            // Sin respuesta válida de la base NO se empieza a guardar: así nunca se reemplaza el progreso
+            // guardado por el de un navegador vacío o desactualizado.
+            if (!r || !r.ok) throw new Error('progreso');
+            var hayLocal = leer(CLAVES.prog)[u] != null || leer(CLAVES.colab)[u] != null;
+            if (r.datos && (r.datos.ts || 0) >= local) aplicar(u, r.datos);
+            // La base no tiene progreso de esta persona: si este navegador sí lo tiene, se recupera y se sube
+            else if (!r.datos && !hayLocal) aplicar(u, { ts: 0 });
             sesion = { u: u, token: token };
             ponerP5(u);
-            if (r && r.ok && r.datos && local > (r.datos.ts || 0)) programar();
-        }, function () { sesion = { u: u, token: token }; ponerP5(u); });
+            if ((r.datos && local > (r.datos.ts || 0)) || (!r.datos && hayLocal)) { tocar(u); programar(); }
+        });
     };
     window.iamiiGuardarProgresoAhora = function () { return enviar(false); };
     setInterval(revisarP5, 5000);
